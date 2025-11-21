@@ -6,7 +6,7 @@ export default function Footer(){
 		<footer className="footer site-footer" role="contentinfo">
 			<div className="container footer-grid">
 				<div className="footer-brand">
-					<strong>JaguarLoca</strong>
+					<strong>JGLocagem</strong>
 					<div className="small">Locadora de veículos — Jaguaruana / CE</div>
 				</div>
 			</div>
