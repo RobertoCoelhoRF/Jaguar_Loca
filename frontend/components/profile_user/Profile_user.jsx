@@ -16,7 +16,7 @@ export default function Profile_user({ user = {}, onLogout = () => {} }) {
 
   return (
     <div className="profile-user">
-      <div className="profile-card" role="dialog" aria-label="Profile menu">
+      <div className="profile-card" role="region" aria-label="Profile menu">
         <div className="profile-avatar">
           {photo ? (
             <img src={photo} alt={`${name} avatar`} />
