@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import headerBar from '../../assets/header-bar.png'
 import './Header.css'
 import Profile_user from '../profile_user/Profile_user'
+import Profile_admin from '../profile_admin/Profile_admin'
 
 export default function Header(){
   const navigate = useNavigate()
@@ -12,7 +13,8 @@ export default function Header(){
   function updateUserFromStorage() {
     const token = localStorage.getItem('token')
     const email = localStorage.getItem('email') || localStorage.getItem('userEmail') || ''
-    if (token) setUser({ token, email })
+    const loginType = localStorage.getItem('loginType') || ''
+    if (token) setUser({ token, email, loginType })
     else setUser(null)
   }
 
@@ -130,13 +132,17 @@ export default function Header(){
       <img src={headerBar} alt="JaguarLoca" className="header-image" />
       <div className="header-buttons">
         {user ? (
-          <Profile_user
-            user={{ name: '', email: user.email }}
-            onLogout={handleLogout}
-            onChangeEmail={handleChangeEmail}
-            onChangePassword={handleChangePassword}
-            onDeleteAccount={handleDeleteAccount}
-          />
+          user.loginType === 'admin' ? (
+            <Profile_admin onLogout={handleLogout} />
+          ) : (
+            <Profile_user
+              user={{ name: '', email: user.email }}
+              onLogout={handleLogout}
+              onChangeEmail={handleChangeEmail}
+              onChangePassword={handleChangePassword}
+              onDeleteAccount={handleDeleteAccount}
+            />
+          )
         ) : (
           <>
             <Link className="btn-login" to="/login">Login</Link>

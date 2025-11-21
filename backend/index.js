@@ -23,6 +23,10 @@ app.use(express.json())
 const authRoutes = require('./src/routes/auth.routes')
 app.use('/auth', authRoutes)
 
+// admin routes
+const adminRoutes = require('./src/routes/admin.routes')
+app.use('/admin', adminRoutes)
+
 // Health
 app.get('/', (req, res) => res.json({ ok: true, env: process.env.NODE_ENV || 'development' }))
 

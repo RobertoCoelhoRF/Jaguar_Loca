@@ -1,0 +1,5 @@
+.profile-admin{ display:flex; align-items:center; gap:8px }
+.admin-avatar{ width:40px; height:40px; border-radius:50%; background:#06b6d4; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800 }
+.admin-menu{ display:flex; gap:8px; align-items:center }
+.admin-link{ color:#fff; text-decoration:none; background:transparent; padding:6px 10px; border-radius:8px }
+.admin-logout{ background:#ff6b6b; color:#fff; border:none; padding:6px 10px; border-radius:8px; cursor:pointer }

@@ -15,3 +15,11 @@ model Usuario {
   senha     String
   createdAt DateTime @default(now())
 }   
+
+model Veiculo {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  cadeiras  Int
+  acessorios String?
+  createdAt DateTime @default(now())
+}

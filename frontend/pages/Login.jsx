@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import Header from '../../components/header/Header'
-import Footer from '../../components/footer/Footer'
+import Header from '../components/header/Header'
+import Footer from '../components/footer/Footer'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -41,7 +41,28 @@ export default function Login() {
       }
     }
 
-    // Enviar dados para backend
+    // Se for login de administrador, validar credenciais locais (fixas)
+    if (loginType === 'admin') {
+      const ADMIN_EMAIL = 'robertocrfilho1996@gmail.com'
+      const ADMIN_PASS = '123456'
+      const ADMIN_CODE = '1234'
+      if (email === ADMIN_EMAIL && password === ADMIN_PASS && formData.adminCode === ADMIN_CODE) {
+        // credenciais válidas — criar token de admin local
+        localStorage.setItem('token', 'admin-token')
+        localStorage.setItem('userId', '0')
+        localStorage.setItem('loginType', 'admin')
+        localStorage.setItem('email', email)
+        window.dispatchEvent(new Event('auth-changed'))
+        alert('Login de administrador realizado com sucesso!')
+        navigate('/')
+        return
+      } else {
+        alert('Credenciais de administrador inválidas')
+        return
+      }
+    }
+
+    // Enviar dados para backend para login de usuário comum
     const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
     fetch(`${backendUrl}/auth/login`, {
       method: 'POST',
