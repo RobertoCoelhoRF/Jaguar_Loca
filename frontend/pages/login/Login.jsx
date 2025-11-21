@@ -58,6 +58,8 @@ export default function Login() {
           if (formData.remember) {
             localStorage.setItem('email', email)
           }
+          // notificar Header e outras partes da aplicação sobre mudança de auth
+          window.dispatchEvent(new Event('auth-changed'))
           alert('Login realizado com sucesso!')
           navigate('/')
         } else {

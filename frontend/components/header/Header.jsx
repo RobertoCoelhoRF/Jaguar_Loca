@@ -2,17 +2,35 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import headerBar from '../../assets/header-bar.png'
 import './Header.css'
+import Profile_user from '../profile_user/Profile_user'
 
 export default function Header(){
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  // Atualiza o estado do usuário a partir do localStorage
+  function updateUserFromStorage() {
+    const token = localStorage.getItem('token')
+    const email = localStorage.getItem('email') || localStorage.getItem('userEmail') || ''
+    if (token) setUser({ token, email })
+    else setUser(null)
+  }
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    const email = localStorage.getItem('email') || localStorage.getItem('userEmail')
-    if (token && email) {
-      setUser({ token, email })
+    updateUserFromStorage()
+
+    // Ouvir eventos de storage (para outras abas) e eventos customizados de auth
+    const onStorage = (e) => {
+      if (e.key === 'token' || e.key === 'email' || e.key === 'userEmail') updateUserFromStorage()
+    }
+    const onAuthChanged = () => updateUserFromStorage()
+
+    window.addEventListener('storage', onStorage)
+    window.addEventListener('auth-changed', onAuthChanged)
+
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener('auth-changed', onAuthChanged)
     }
   }, [])
 
@@ -23,7 +41,9 @@ export default function Header(){
     localStorage.removeItem('email')
     localStorage.removeItem('userEmail')
     setUser(null)
-    setDropdownOpen(false)
+    // notificar outras partes da app
+    window.dispatchEvent(new Event('auth-changed'))
+    // dropdown removed; just reset user
     navigate('/')
   }
 
@@ -41,9 +61,8 @@ export default function Header(){
       })
         .then(res => res.json())
         .then(data => {
-          if (data.ok) {
+            if (data.ok) {
             alert('Senha alterada com sucesso!')
-            setDropdownOpen(false)
           } else {
             alert(data.error || 'Erro ao alterar senha')
           }
@@ -68,11 +87,10 @@ export default function Header(){
       })
         .then(res => res.json())
         .then(data => {
-          if (data.ok) {
+            if (data.ok) {
             localStorage.setItem('userEmail', newEmail)
             setUser({ ...user, email: newEmail })
             alert('E-mail alterado com sucesso!')
-            setDropdownOpen(false)
           } else {
             alert(data.error || 'Erro ao alterar e-mail')
           }
@@ -95,7 +113,7 @@ export default function Header(){
       })
         .then(res => res.json())
         .then(data => {
-          if (data.ok) {
+            if (data.ok) {
             alert('Conta deletada com sucesso')
             handleLogout()
           } else {
@@ -112,31 +130,13 @@ export default function Header(){
       <img src={headerBar} alt="JaguarLoca" className="header-image" />
       <div className="header-buttons">
         {user ? (
-          <div className="profile-dropdown">
-            <button 
-              className="btn-profile" 
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              👤 {user.email}
-            </button>
-            {dropdownOpen && (
-              <div className="dropdown-menu">
-                <button onClick={handleChangeEmail} className="dropdown-item">
-                  📧 Trocar E-mail
-                </button>
-                <button onClick={handleChangePassword} className="dropdown-item">
-                  🔐 Trocar Senha
-                </button>
-                <button onClick={handleDeleteAccount} className="dropdown-item delete">
-                  🗑️ Apagar Conta
-                </button>
-                <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid rgba(255,255,255,0.2)' }} />
-                <button onClick={handleLogout} className="dropdown-item logout">
-                  🚪 Sair
-                </button>
-              </div>
-            )}
-          </div>
+          <Profile_user
+            user={{ name: '', email: user.email }}
+            onLogout={handleLogout}
+            onChangeEmail={handleChangeEmail}
+            onChangePassword={handleChangePassword}
+            onDeleteAccount={handleDeleteAccount}
+          />
         ) : (
           <>
             <Link className="btn-login" to="/login">Login</Link>
