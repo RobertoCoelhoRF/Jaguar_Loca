@@ -64,7 +64,6 @@ export default function Profile_user({
           </div>
 
           <div className="menu-list">
-            <button className="menu-item" type="button" onClick={() => { setOpen(false); /* opcional: ir para perfil */ }}>Meu perfil</button>
             <button className="menu-item" type="button" onClick={() => { setOpen(false); onChangeEmail(); }}>Alterar e-mail</button>
             <button className="menu-item" type="button" onClick={() => { setOpen(false); onChangePassword(); }}>Alterar senha</button>
             <button className="menu-item delete" type="button" onClick={() => { setOpen(false); onDeleteAccount(); }}>Deletar conta</button>
