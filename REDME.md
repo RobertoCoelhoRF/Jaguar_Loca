@@ -1,0 +1,1 @@
+Quero que tenha uma um local onde muda se o login é de usuario ou de admin e cada um com seus campos caso escolha usuario tera os campos usuarios sem aparecer os de administrador mas caso o contrario aparece os de administrador (Campos do usuario continuam os mesmos) ja os de administrador ()

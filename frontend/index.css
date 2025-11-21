@@ -1,0 +1,24 @@
+
+:root{
+	--cyan:#05c0d6;
+	--cyan-dark:#00a6bc;
+	--ink:#111827;
+	--muted:#f1efe9;
+	--dot:#e5e7eb;
+	--card:#f3f0ea;
+	--shadow: 0 10px 20px rgba(0,0,0,.08);
+	--radius: 16px;
+	--radius-lg: 22px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+	margin:0;
+	font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+	color:var(--ink);
+	background:
+		radial-gradient(var(--dot) 1px, transparent 1px) 0 0/14px 14px,
+		#ffffff;
+}
+
