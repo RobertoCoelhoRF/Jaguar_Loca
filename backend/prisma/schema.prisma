@@ -21,5 +21,6 @@ model Veiculo {
   nome      String
   cadeiras  Int
   acessorios String?
+  foto      String?
   createdAt DateTime @default(now())
 }

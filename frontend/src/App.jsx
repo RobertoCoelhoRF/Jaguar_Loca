@@ -1,20 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import heroBanner from '../assets/hero-banner.png'
 import placeholder from '../assets/placeholder.svg'
 import Header from '../components/header/Header'
 import Footer from '../components/footer/Footer'
 import Card from '../components/card/Card'
 
-const CARS = [
-  { id: 1, name: 'HYUNDAI HB20 2025 1.0 12V FLEX COMFORT PLUS MANUAL', img: placeholder },
-  { id: 2, name: 'TORO 2025 ENDURANCE TURBO 270 FLEX AT6', img: placeholder },
-  { id: 3, name: 'TOYOTA SW4 2.8 D-4D TURBO DIESEL SRX PLATINUM 4X4 AUTOMÁTICO', img: placeholder },
-  { id: 4, name: 'HILUX TURBO DIESEL CD SRX PLUS 4X4 AUTOMÁTICO', img: placeholder },
-  { id: 5, name: 'TOYOTA COROLLA 2025 2.0 VVT-iE FLEX XEi DIRECT SHIFT', img: placeholder },
-  { id: 6, name: 'JEEP COMPASS 1.3 T270 TURBO FLEX LONGITUDE AT6', img: placeholder },
-  { id: 7, name: 'FIAT STRADA ENDURANCE CS 2025', img: placeholder },
-  { id: 8, name: 'ONIX RS 2025 HATCH 1.0 TURBO FLEX 116CV', img: placeholder },
-]
+const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
 
 function formatToday() {
   const today = new Date()
@@ -25,6 +16,15 @@ function formatToday() {
 }
 
 export default function App() {
+  const [cars, setCars] = useState([])
+
+  useEffect(() => {
+    fetch(`${backendUrl}/veiculos`).then(r => r.json()).then(data => {
+      const items = (data.veiculos || []).map(v => ({ id: v.id, name: v.nome, img: v.foto ? `${backendUrl}${v.foto}` : placeholder, cadeiras: v.cadeiras, acessorios: v.acessorios }))
+      setCars(items)
+    }).catch(() => setCars([]))
+  }, [])
+
   return (
     <div>
       <Header />
@@ -35,7 +35,7 @@ export default function App() {
 
       <main className="container">
         <section className="grid">
-          {CARS.map(car => (
+          {cars.map(car => (
             <Card key={car.id} car={car} />
           ))}
         </section>
