@@ -25,6 +25,20 @@ function formatToday() {
 }
 
 export default function App() {
+  const [vehicles, setVehicles] = useState([])
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
+
+  useEffect(() => {
+      fetch(`${backendUrl}/veiculos`).then(r => r.json()).then(data => {
+        const v = (data.veiculos || data.vehicles || []).map(x => ({
+        id: x.id,
+        name: x.nome,
+        img: x.image ? (x.image.startsWith('http') ? x.image : `${backendUrl}${x.image}`) : placeholder
+      }))
+      setVehicles(v)
+    }).catch(() => setVehicles([]))
+  }, [])
+
   return (
     <div>
       <Header />
@@ -35,7 +49,7 @@ export default function App() {
 
       <main className="container">
         <section className="grid">
-          {CARS.map(car => (
+          {vehicles.map(car => (
             <Card key={car.id} car={car} />
           ))}
         </section>
