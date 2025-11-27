@@ -16,7 +16,14 @@ export default function Admin() {
       .catch(() => setUsers([]))
   }
 
-  useEffect(() => { loadUsers() }, [])
+  function loadVeiculos() {
+    fetch(`${backendUrl}/admin/veiculos`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+      .then(r => r.json())
+      .then(data => setVeiculos(data.veiculos || []))
+      .catch(() => setVeiculos([]))
+  }
+
+  useEffect(() => { loadUsers(); loadVeiculos() }, [])
 
   function handleChange(e) { setForm(prev => ({ ...prev, [e.target.name]: e.target.value })) }
 
@@ -32,6 +39,7 @@ export default function Admin() {
         if (data.veiculo) {
           alert('Veículo cadastrado com sucesso')
           setForm({ nome: '', cadeiras: 0, acessorios: '' })
+          loadVeiculos()
         } else alert(data.error || 'Erro')
       })
   }

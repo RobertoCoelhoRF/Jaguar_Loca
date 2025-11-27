@@ -28,6 +28,16 @@ exports.listUsers = async (req, res) => {
   }
 }
 
+exports.listVeiculos = async (req, res) => {
+  try {
+    if (!isAdminToken(req)) return res.status(401).json({ error: 'Unauthorized' })
+    const veiculos = await adminService.listVeiculos()
+    res.json({ veiculos })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
+
 exports.deleteUser = async (req, res) => {
   try {
     if (!isAdminToken(req)) return res.status(401).json({ error: 'Unauthorized' })

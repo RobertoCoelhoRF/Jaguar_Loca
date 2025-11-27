@@ -15,4 +15,8 @@ async function deleteUser(id) {
   await prisma.usuario.delete({ where: { id } })
 }
 
-module.exports = { createVeiculo, listUsers, deleteUser }
+async function listVeiculos() {
+  return await prisma.veiculo.findMany({ orderBy: { createdAt: 'desc' } })
+}
+
+module.exports = { createVeiculo, listUsers, deleteUser, listVeiculos }
