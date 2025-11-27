@@ -53,7 +53,16 @@ export default function Admin() {
           <h3>Cadastrar Veículo</h3>
           <form onSubmit={createVehicle} style={{ display: 'grid', gap: 8, maxWidth: 520 }}>
             <input className="input" name="nome" placeholder="Nome do veículo" value={form.nome} onChange={handleChange} required />
-            <input className="input" name="cadeiras" type="number" placeholder="Número de cadeiras" value={form.cadeiras} onChange={handleChange} min={0} />
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontWeight: 700 }}>Número de cadeiras</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button type="button" className="btn btn-ghost" onClick={() => setForm(prev => ({ ...prev, cadeiras: Math.max(0, (Number(prev.cadeiras) || 0) - 1) }))}>-</button>
+                <div style={{ minWidth: 56, textAlign: 'center', fontWeight: 700, padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff' }}>{form.cadeiras}</div>
+                <button type="button" className="btn" onClick={() => setForm(prev => ({ ...prev, cadeiras: (Number(prev.cadeiras) || 0) + 1 }))}>+</button>
+              </div>
+            </div>
+
             <input className="input" name="acessorios" placeholder="Acessórios (vírgula separados)" value={form.acessorios} onChange={handleChange} />
             <div style={{ display: 'flex', gap: 8 }}>
               <button className="btn" type="submit">Cadastrar</button>
