@@ -11,9 +11,7 @@ exports.createVehicle = async (req, res) => {
   try {
     if (!isAdminToken(req)) return res.status(401).json({ error: 'Unauthorized' })
     const { nome, cadeiras, acessorios } = req.body
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : undefined
-    // use create with image when provided
-    const vehicle = await adminService.createVehicleWithImage({ nome, cadeiras, acessorios, imagePath })
+    const vehicle = await adminService.createVehicle({ nome, cadeiras, acessorios })
     res.json({ vehicle })
   } catch (err) {
     res.status(500).json({ error: err.message })

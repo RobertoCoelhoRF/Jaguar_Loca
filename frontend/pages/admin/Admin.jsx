@@ -5,7 +5,7 @@ import Footer from '../../components/footer/Footer'
 export default function Admin() {
   const [vehicles, setVehicles] = useState([])
   const [users, setUsers] = useState([])
-  const [form, setForm] = useState({ nome: '', cadeiras: 0, acessorios: '', imageFile: null })
+  const [form, setForm] = useState({ nome: '', cadeiras: 0, acessorios: '' })
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
 
@@ -18,51 +18,22 @@ export default function Admin() {
 
   useEffect(() => { loadUsers() }, [])
 
-  function handleChange(e) {
-    const { name, value, files } = e.target
-    if (name === 'imageFile') {
-      setForm(prev => ({ ...prev, imageFile: files && files[0] ? files[0] : null }))
-    } else {
-      setForm(prev => ({ ...prev, [name]: value }))
-    }
-  }
+  function handleChange(e) { setForm(prev => ({ ...prev, [e.target.name]: e.target.value })) }
 
   function createVehicle(e) {
     e.preventDefault()
-    // enviar FormData se houver imagem
-    const token = localStorage.getItem('token')
-    if (form.imageFile) {
-      const fd = new FormData()
-      fd.append('nome', form.nome)
-      fd.append('cadeiras', String(Number(form.cadeiras)))
-      fd.append('acessorios', form.acessorios)
-      fd.append('image', form.imageFile)
-      fetch(`${backendUrl}/admin/veiculos`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd
+    fetch(`${backendUrl}/admin/vehicles`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+      body: JSON.stringify({ nome: form.nome, cadeiras: Number(form.cadeiras), acessorios: form.acessorios })
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.vehicle) {
+          alert('Veículo cadastrado com sucesso')
+          setForm({ nome: '', cadeiras: 0, acessorios: '' })
+        } else alert(data.error || 'Erro')
       })
-        .then(r => r.json())
-        .then(data => {
-          if (data.vehicle) {
-            alert('Veículo cadastrado com sucesso')
-            setForm({ nome: '', cadeiras: 0, acessorios: '', imageFile: null })
-          } else alert(data.error || 'Erro')
-        })
-    } else {
-      fetch(`${backendUrl}/admin/veiculos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ nome: form.nome, cadeiras: Number(form.cadeiras), acessorios: form.acessorios })
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (data.vehicle) {
-            alert('Veículo cadastrado com sucesso')
-            setForm({ nome: '', cadeiras: 0, acessorios: '', imageFile: null })
-          } else alert(data.error || 'Erro')
-        })
-    }
   }
 
   function deleteUser(id) {
@@ -93,10 +64,6 @@ export default function Admin() {
             </div>
 
             <input className="input" name="acessorios" placeholder="Acessórios (vírgula separados)" value={form.acessorios} onChange={handleChange} />
-            <div>
-              <label style={{ fontWeight: 700 }}>Imagem do veículo (opcional)</label>
-              <input className="input" type="file" name="imageFile" accept="image/*" onChange={handleChange} />
-            </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button className="btn" type="submit">Cadastrar</button>
             </div>

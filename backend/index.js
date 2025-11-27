@@ -27,14 +27,6 @@ app.use('/auth', authRoutes)
 const adminRoutes = require('./src/routes/admin.routes')
 app.use('/admin', adminRoutes)
 
-// serve uploaded files
-const path = require('path')
-app.use('/uploads', express.static(path.resolve(__dirname, 'uploads')))
-
-// public veiculos route
-const vehiclesRoutes = require('./src/routes/vehicles.routes')
-app.use('/veiculos', vehiclesRoutes)
-
 // Health
 app.get('/', (req, res) => res.json({ ok: true, env: process.env.NODE_ENV || 'development' }))
 
@@ -42,8 +34,3 @@ const PORT = process.env.PORT || 4000
 app.listen(PORT, () => {
   console.log(`Backend server running on http://localhost:${PORT}`)
 })
-
-// ensure uploads dir exists
-const fs = require('fs')
-const uploadsDir = path.resolve(__dirname, 'uploads')
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
