@@ -7,12 +7,12 @@ function isAdminToken(req) {
   return token === 'admin-token'
 }
 
-exports.createVehicle = async (req, res) => {
+exports.createVeiculo = async (req, res) => {
   try {
     if (!isAdminToken(req)) return res.status(401).json({ error: 'Unauthorized' })
     const { nome, cadeiras, acessorios } = req.body
-    const vehicle = await adminService.createVehicle({ nome, cadeiras, acessorios })
-    res.json({ vehicle })
+    const veiculo = await adminService.createVeiculo({ nome, cadeiras, acessorios })
+    res.json({ veiculo })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

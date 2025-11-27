@@ -71,7 +71,7 @@ npx prisma studio --schema ./backend/prisma/schema.prisma
 - `DELETE /auth/account` — deleta conta (autenticado)
 
 Admin (requer header `Authorization: Bearer admin-token` para autenticação de dev):
-- `POST /admin/vehicles` — cadastra veículo (`nome`, `cadeiras`, `acessorios`)
+- `POST /admin/veiculos` — cadastra veículo (`nome`, `cadeiras`, `acessorios`)
 - `GET /admin/users` — lista usuários (id, nome, email, cpf)
 - `DELETE /admin/users/:id` — deleta usuário por id
 

@@ -1,10 +1,10 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-async function createVehicle({ nome, cadeiras, acessorios }) {
+async function createVeiculo({ nome, cadeiras, acessorios }) {
   if (!nome) throw new Error('Nome é obrigatório')
-  const vehicle = await prisma.veiculo.create({ data: { nome, cadeiras: cadeiras || 0, acessorios } })
-  return vehicle
+  const veiculo = await prisma.veiculo.create({ data: { nome, cadeiras: cadeiras || 0, acessorios } })
+  return veiculo
 }
 
 async function listUsers() {
@@ -15,4 +15,4 @@ async function deleteUser(id) {
   await prisma.usuario.delete({ where: { id } })
 }
 
-module.exports = { createVehicle, listUsers, deleteUser }
+module.exports = { createVeiculo, listUsers, deleteUser }

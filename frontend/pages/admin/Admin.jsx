@@ -3,7 +3,7 @@ import Header from '../../components/header/Header'
 import Footer from '../../components/footer/Footer'
 
 export default function Admin() {
-  const [vehicles, setVehicles] = useState([])
+  const [veiculos, setVeiculos] = useState([])
   const [users, setUsers] = useState([])
   const [form, setForm] = useState({ nome: '', cadeiras: 0, acessorios: '' })
 
@@ -20,16 +20,16 @@ export default function Admin() {
 
   function handleChange(e) { setForm(prev => ({ ...prev, [e.target.name]: e.target.value })) }
 
-  function createVehicle(e) {
+  function createVeiculo(e) {
     e.preventDefault()
-    fetch(`${backendUrl}/admin/vehicles`, {
+    fetch(`${backendUrl}/admin/veiculos`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
       body: JSON.stringify({ nome: form.nome, cadeiras: Number(form.cadeiras), acessorios: form.acessorios })
     })
       .then(r => r.json())
       .then(data => {
-        if (data.vehicle) {
+        if (data.veiculo) {
           alert('Veículo cadastrado com sucesso')
           setForm({ nome: '', cadeiras: 0, acessorios: '' })
         } else alert(data.error || 'Erro')
@@ -51,7 +51,7 @@ export default function Admin() {
 
         <section style={{ marginTop: 18 }}>
           <h3>Cadastrar Veículo</h3>
-          <form onSubmit={createVehicle} style={{ display: 'grid', gap: 8, maxWidth: 520 }}>
+          <form onSubmit={createVeiculo} style={{ display: 'grid', gap: 8, maxWidth: 520 }}>
             <input className="input" name="nome" placeholder="Nome do veículo" value={form.nome} onChange={handleChange} required />
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
