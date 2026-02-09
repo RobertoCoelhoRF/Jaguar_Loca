@@ -6,7 +6,8 @@ export default function Profile_user({
   onLogout = () => {},
   onChangeEmail = () => {},
   onChangePassword = () => {},
-  onDeleteAccount = () => {}
+  onDeleteAccount = () => {},
+  onMyReservations = () => {}
 }) {
   const { name = 'Usuário', email = 'email@exemplo.com', photo } = user;
   const initial = name ? name.charAt(0).toUpperCase() : 'U';
@@ -66,6 +67,7 @@ export default function Profile_user({
           <div className="menu-list">
             <button className="menu-item" type="button" onClick={() => { setOpen(false); onChangeEmail(); }}>Alterar e-mail</button>
             <button className="menu-item" type="button" onClick={() => { setOpen(false); onChangePassword(); }}>Alterar senha</button>
+            <button className="menu-item" type="button" onClick={() => { setOpen(false); onMyReservations(); }}>Minhas Reservas</button>
             <button className="menu-item delete" type="button" onClick={() => { setOpen(false); onDeleteAccount(); }}>Deletar conta</button>
             <div className="menu-divider" />
             <button className="menu-item logout" type="button" onClick={() => { setOpen(false); onLogout(); }}>Sair</button>

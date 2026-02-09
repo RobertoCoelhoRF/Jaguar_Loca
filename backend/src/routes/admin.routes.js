@@ -27,5 +27,7 @@ router.get('/veiculos', adminController.listVeiculos)
 router.get('/users', adminController.listUsers)
 router.delete('/users/:id', adminController.deleteUser)
 router.delete('/veiculos/:id', adminController.deleteVeiculo)
+router.get('/reservas', adminController.listReservas)
+router.delete('/reservas/:id', adminController.deleteReserva)
 
 module.exports = router

@@ -19,10 +19,16 @@ export default function App() {
   const [cars, setCars] = useState([])
 
   useEffect(() => {
-    fetch(`${backendUrl}/veiculos`).then(r => r.json()).then(data => {
-      const items = (data.veiculos || []).map(v => ({ id: v.id, name: v.nome, img: v.foto ? `${backendUrl}${v.foto}` : placeholder, cadeiras: v.cadeiras, acessorios: v.acessorios }))
-      setCars(items)
-    }).catch(() => setCars([]))
+    function load() {
+      fetch(`${backendUrl}/veiculos`).then(r => r.json()).then(data => {
+        const items = (data.veiculos || []).map(v => ({ id: v.id, name: v.nome, img: v.foto ? `${backendUrl}${v.foto}` : placeholder, cadeiras: v.cadeiras, acessorios: v.acessorios, precoDiaria: v.precoDiaria, reserved: Boolean(v.reservado) }))
+        setCars(items)
+      }).catch(() => setCars([]))
+    }
+    load()
+    const onChange = () => load()
+    window.addEventListener('veiculos-changed', onChange)
+    return () => window.removeEventListener('veiculos-changed', onChange)
   }, [])
 
   return (

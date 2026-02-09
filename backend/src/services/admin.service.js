@@ -3,9 +3,13 @@ const prisma = new PrismaClient()
 const fs = require('fs')
 const path = require('path')
 
-async function createVeiculo({ nome, cadeiras, acessorios, foto }) {
+async function createVeiculo({ nome, cadeiras, acessorios, foto, precoDiaria }) {
   if (!nome) throw new Error('Nome é obrigatório')
-  const data = { nome, cadeiras: Number(cadeiras) || 0, acessorios }
+  if (!precoDiaria && precoDiaria !== 0) throw new Error('Preço da diária é obrigatório')
+  const preco = Number(precoDiaria)
+  if (isNaN(preco) || preco < 0) throw new Error('Preço da diária deve ser um número válido')
+  if (preco === 0) throw new Error('Preço da diária deve ser maior que zero')
+  const data = { nome, cadeiras: Number(cadeiras) || 0, acessorios, precoDiaria: preco }
   // Persist optional foto field (string path like `/uploads/filename`)
   if (foto) data.foto = foto
   const veiculo = await prisma.veiculo.create({ data })

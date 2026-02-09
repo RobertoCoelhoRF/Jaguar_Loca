@@ -8,19 +8,37 @@ datasource db {
 }
 
 model Usuario {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   nome      String
-  cpf       String   @unique
-  email     String   @unique
+  cpf       String    @unique
+  email     String    @unique
   senha     String
-  createdAt DateTime @default(now())
-}   
+  createdAt DateTime  @default(now())
+  reservas  Reserva[]
+}
 
 model Veiculo {
-  id        Int      @id @default(autoincrement())
-  nome      String
-  cadeiras  Int
-  acessorios String?
-  foto      String?
-  createdAt DateTime @default(now())
+  id           Int       @id @default(autoincrement())
+  nome         String
+  cadeiras     Int
+  acessorios   String?
+  foto         String?
+  precoDiaria  Float
+  reservado    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  reservas     Reserva[]
+}
+
+model Reserva {
+  id           Int      @id @default(autoincrement())
+  usuario      Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId    Int
+  veiculo      Veiculo  @relation(fields: [veiculoId], references: [id])
+  veiculoId    Int
+  dataRetirada DateTime
+  horaRetirada String
+  dataDevolucao DateTime @default(now())
+  valorTotal   Float    @default(0)
+  observacoes  String?
+  createdAt    DateTime @default(now())
 }

@@ -1,0 +1,59 @@
+﻿2025-11-27 15:43:32  === START prisma setup ===
+2025-11-27 15:43:32  1) npm install
+
+up to date, audited 248 packages in 1s
+
+36 packages are looking for funding
+  run `npm fund` for details
+
+6 high severity vulnerabilities
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+2025-11-27 15:43:34  2) prisma generate --schema=backend/prisma/schema.prisma
+Environment variables loaded from .env
+Prisma schema loaded from backend\prisma\schema.prisma
+node.exe : Error: Prisma schema validation - (get-dmmf wasm)
+No C:\Program Files\nodejs\npx.ps1:29 caractere:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Error: Prisma s...(get-dmmf was 
+   m):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Error code: P1012
+[1;91merror[0m: [1mError validating field `usuario` in model `Reserva`: 
+The relation field `usuario` on model `Reserva` is missing an opposite 
+relation field on the model `Usuario`. Either run `prisma format` or add it 
+manually.[0m
+  [1;94m-->[0m  [4mbackend\prisma\schema.prisma:31[0m
+[1;94m   | [0m
+[1;94m30 | [0m  id          Int      @id @default(autoincrement())
+[1;94m31 | [0m  [1;91musuario     Usuario  @relation(fields: [usuarioId], 
+references: [id])
+[0m
+[1;94m32 | [0m  usuarioId   Int
+[1;94m   | [0m
+[1;91merror[0m: [1mError validating field `veiculo` in model `Reserva`: 
+The relation field `veiculo` on model `Reserva` is missing an opposite 
+relation field on the model `Veiculo`. Either run `prisma format` or add it 
+manually.[0m
+  [1;94m-->[0m  [4mbackend\prisma\schema.prisma:33[0m
+[1;94m   | [0m
+[1;94m32 | [0m  usuarioId   Int
+[1;94m33 | [0m  [1;91mveiculo     Veiculo  @relation(fields: [veiculoId], 
+references: [id])
+[0m
+[1;94m34 | [0m  veiculoId   Int
+[1;94m   | [0m
+
+Validation Error Count: 2
+[Context: getDmmf]
+
+Prisma CLI Version : 5.22.0
+2025-11-27 15:43:35  prisma generate failed with exit code 1

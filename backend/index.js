@@ -34,6 +34,10 @@ app.use('/admin', adminRoutes)
 const veiculosRoutes = require('./src/routes/veiculos.routes')
 app.use('/veiculos', veiculosRoutes)
 
+// reservas routes
+const reservaRoutes = require('./src/routes/reserva.routes')
+app.use('/reservas', reservaRoutes)
+
 // Health
 app.get('/', (req, res) => res.json({ ok: true, env: process.env.NODE_ENV || 'development' }))
 

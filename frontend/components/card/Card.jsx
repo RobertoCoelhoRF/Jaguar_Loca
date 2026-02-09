@@ -12,6 +12,7 @@ function formatToday() {
 export default function Card({ car }) {
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState(formatToday())
+  const [devDate, setDevDate] = useState(formatToday())
   const [time, setTime] = useState('08:00')
   const [notes, setNotes] = useState('')
 
@@ -24,8 +25,22 @@ export default function Card({ car }) {
     return arr
   }, [])
 
+  function calculateDays() {
+    const d1 = new Date(date)
+    const d2 = new Date(devDate)
+    const diffTime = d2 - d1
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return Math.max(1, diffDays)
+  }
+
+  function calculateTotal() {
+    const days = calculateDays()
+    return (days * (car.precoDiaria || 0)).toFixed(2)
+  }
+
   function openModal() {
     setDate(formatToday())
+    setDevDate(formatToday())
     setTime('08:00')
     setNotes('')
     setOpen(true)
@@ -63,11 +78,30 @@ export default function Card({ car }) {
     }
   }, [open])
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    const name = car?.name || 'Veículo'
-    alert(`Reserva registrada (simulada):\n${name}\nRetirada: ${date} às ${time}`)
-    closeModal()
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
+      const token = localStorage.getItem('token')
+      const resp = await fetch(`${backendUrl}/reservas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ veiculoId: car.id, dataRetirada: date, horaRetirada: time, dataDevolucao: devDate, valorTotal: calculateTotal(), observacoes: notes })
+      })
+      const data = await resp.json()
+      if (resp.ok && data.reserva) {
+        // notify parent to reload vehicles
+        window.dispatchEvent(new Event('veiculos-changed'))
+        alert('Reserva criada com sucesso')
+        closeModal()
+      } else {
+        console.error('Erro ao criar reserva:', data)
+        alert(data.error || 'Erro ao criar reserva')
+      }
+    } catch (err) {
+      console.error('Falha ao criar reserva:', err)
+      alert('Erro na requisição')
+    }
   }
 
   return (
@@ -77,10 +111,20 @@ export default function Card({ car }) {
         <div className="car-photo">
           <img src={car.img} alt={car.name} />
         </div>
-        <div className="indicator">
-          <span></span><span></span><span></span><span></span>
+        <div className="car-meta small" style={{ marginTop: 8 }}>
+          <div style={{ fontWeight: 700 }}>{car.cadeiras || '—'} cadeiras</div>
+          <div style={{ fontSize: 13, color: '#555' }}>{car.acessorios || 'Sem acessórios informados'}</div>
+          {car.precoDiaria && (
+            <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, marginTop: 6 }}>
+              R$ {Number(car.precoDiaria).toFixed(2)}/dia
+            </div>
+          )}
         </div>
-        <button className="reserve" onClick={openModal}>Reservar</button>
+        {car.reserved ? (
+          <button className="reserve" disabled style={{ opacity: 0.7 }}>Já reservado</button>
+        ) : (
+          <button className="reserve" onClick={openModal}>Reservar</button>
+        )}
       </article>
 
       {open && (
@@ -98,6 +142,13 @@ export default function Card({ car }) {
                 <div className="modal-product-info">
                   <div id={`res-name-${car.id}`} className="modal-product-name">{car?.name}</div>
                   <div className="modal-product-meta small">Retirada em Jaguaruana — Loja Central</div>
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>{car?.cadeiras || '—'} cadeiras</div>
+                    <div style={{ fontSize: 13, color: '#555' }}>{car?.acessorios || 'Sem acessórios informados'}</div>                      {car?.precoDiaria && (
+                        <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, marginTop: 6 }}>
+                          R$ {Number(car.precoDiaria).toFixed(2)}/dia
+                        </div>
+                      )}                  </div>
                 </div>
               </div>
 
@@ -115,8 +166,26 @@ export default function Card({ car }) {
                   </div>
                 </div>
                 <div className="form-group">
+                  <label className="label" htmlFor={`res-devdate-${car.id}`}>Data de devolução</label>
+                  <input className="input" type="date" id={`res-devdate-${car.id}`} value={devDate} min={date} onChange={e => setDevDate(e.target.value)} required />
+                </div>
+                <div className="form-group">
                   <label className="label" htmlFor={`res-notes-${car.id}`}>Observações</label>
                   <textarea className="input" id={`res-notes-${car.id}`} rows="3" placeholder="Ex.: preciso de cadeirinha infantil" value={notes} onChange={e => setNotes(e.target.value)}></textarea>
+                </div>
+                <div style={{ padding: 12, background: '#f3f4f6', borderRadius: 8, marginTop: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
+                    <span>Quantidade de dias:</span>
+                    <strong>{calculateDays()} dia(s)</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
+                    <span>Preço por dia:</span>
+                    <strong>R$ {Number(car.precoDiaria).toFixed(2)}</strong>
+                  </div>
+                  <div style={{ borderTop: '1px solid #d1d5db', paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 700 }}>
+                    <span>Total:</span>
+                    <strong style={{ color: '#16a34a' }}>R$ {calculateTotal()}</strong>
+                  </div>
                 </div>
                 <div className="actions" style={{ justifyContent: 'flex-start', marginTop: 16 }}>
                   <button className="btn" type="submit">Confirmar reserva</button>

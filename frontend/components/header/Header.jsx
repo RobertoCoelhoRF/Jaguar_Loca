@@ -126,6 +126,10 @@ export default function Header(){
     }
   }
 
+  const goToMyReservations = () => {
+    navigate('/minhas-reservas')
+  }
+
   return (
     <header className="header">
       <Link className="logo-link" to="/" aria-label="Voltar para a página inicial"></Link>
@@ -141,6 +145,7 @@ export default function Header(){
               onChangeEmail={handleChangeEmail}
               onChangePassword={handleChangePassword}
               onDeleteAccount={handleDeleteAccount}
+              onMyReservations={goToMyReservations}
             />
           )
         ) : (

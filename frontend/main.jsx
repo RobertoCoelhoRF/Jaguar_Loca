@@ -7,6 +7,7 @@ import App from './src/App.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import Admin from './pages/admin/Admin'
+import MinhasReservas from './pages/minhas-reservas/MinhasReservas'
 
 const rootEl = document.getElementById('root')
 const root = createRoot(rootEl)
@@ -18,7 +19,8 @@ root.render(
 				<Route path="/" element={<App />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
-                <Route path="/admin" element={<Admin />} />
+				<Route path="/admin" element={<Admin />} />
+				<Route path="/minhas-reservas" element={<MinhasReservas />} />
 			</Routes>
 		</BrowserRouter>
 	</React.StrictMode>
