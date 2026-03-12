@@ -10,6 +10,10 @@ export default function Admin() {
   const [fotoPreview, setFotoPreview] = useState(null)
   const [form, setForm] = useState({ nome: '', cadeiras: 0, acessorios: '', precoDiaria: '' })
   const [activeTab, setActiveTab] = useState('cadastro') // 'cadastro', 'usuarios', 'veiculos', 'reservas'
+  const [editingVeiculo, setEditingVeiculo] = useState(null)
+  const [editForm, setEditForm] = useState({ nome: '', cadeiras: 0, acessorios: '', precoDiaria: '' })
+  const [editFotoFile, setEditFotoFile] = useState(null)
+  const [editFotoPreview, setEditFotoPreview] = useState(null)
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
 
@@ -39,10 +43,13 @@ export default function Admin() {
   useEffect(() => {
     return () => {
       if (fotoPreview) URL.revokeObjectURL(fotoPreview)
+      if (editFotoPreview) URL.revokeObjectURL(editFotoPreview)
     }
-  }, [fotoPreview])
+  }, [fotoPreview, editFotoPreview])
 
   function handleChange(e) { setForm(prev => ({ ...prev, [e.target.name]: e.target.value })) }
+
+  function handleEditChange(e) { setEditForm(prev => ({ ...prev, [e.target.name]: e.target.value })) }
 
   function handleFotoChange(e) {
     const f = e.target.files && e.target.files[0]
@@ -62,6 +69,90 @@ export default function Admin() {
     if (fotoPreview) URL.revokeObjectURL(fotoPreview)
     setFotoFile(null)
     setFotoPreview(null)
+  }
+
+  function handleEditVeiculo(veiculo) {
+    setEditingVeiculo(veiculo.id)
+    setEditForm({
+      nome: veiculo.nome,
+      cadeiras: veiculo.cadeiras,
+      acessorios: veiculo.acessorios,
+      precoDiaria: veiculo.precoDiaria
+    })
+    setEditFotoFile(null)
+    setEditFotoPreview(null)
+  }
+
+  function handleEditFotoChange(e) {
+    const f = e.target.files && e.target.files[0]
+    if (!f) {
+      if (editFotoPreview) URL.revokeObjectURL(editFotoPreview)
+      setEditFotoFile(null)
+      setEditFotoPreview(null)
+      return
+    }
+    if (editFotoPreview) URL.revokeObjectURL(editFotoPreview)
+    const url = URL.createObjectURL(f)
+    setEditFotoFile(f)
+    setEditFotoPreview(url)
+  }
+
+  function removeEditFoto() {
+    if (editFotoPreview) URL.revokeObjectURL(editFotoPreview)
+    setEditFotoFile(null)
+    setEditFotoPreview(null)
+  }
+
+  function cancelEditVeiculo() {
+    if (editFotoPreview) URL.revokeObjectURL(editFotoPreview)
+    setEditingVeiculo(null)
+    setEditForm({ nome: '', cadeiras: 0, acessorios: '', precoDiaria: '' })
+    setEditFotoFile(null)
+    setEditFotoPreview(null)
+  }
+
+  function submitEditVeiculo(e) {
+    e.preventDefault()
+
+    if (!editForm.nome.trim()) {
+      alert('Nome do veículo é obrigatório')
+      return
+    }
+    if (!editForm.precoDiaria || Number(editForm.precoDiaria) <= 0) {
+      alert('Preço da diária é obrigatório e deve ser maior que zero')
+      return
+    }
+
+    let options = { method: 'PUT', headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+    if (editFotoFile) {
+      const fd = new FormData()
+      fd.append('nome', editForm.nome)
+      fd.append('cadeiras', String(Number(editForm.cadeiras)))
+      fd.append('acessorios', editForm.acessorios)
+      fd.append('precoDiaria', editForm.precoDiaria)
+      fd.append('foto', editFotoFile)
+      options.body = fd
+    } else {
+      options.headers['Content-Type'] = 'application/json'
+      options.body = JSON.stringify({ nome: editForm.nome, cadeiras: Number(editForm.cadeiras), acessorios: editForm.acessorios, precoDiaria: Number(editForm.precoDiaria) })
+    }
+
+    fetch(`${backendUrl}/admin/veiculos/${editingVeiculo}`, options)
+      .then(r => r.json())
+      .then(data => {
+        if (data.veiculo) {
+          alert('Veículo atualizado com sucesso')
+          cancelEditVeiculo()
+          loadVeiculos()
+        } else {
+          console.error('Erro ao atualizar veículo:', data)
+          alert(`Erro ao atualizar: ${data.error || 'Erro desconhecido'}`)
+        }
+      })
+      .catch(err => {
+        console.error('Falha na requisição de atualização:', err)
+        alert(`Falha na requisição: ${err.message}`)
+      })
   }
 
   function createVeiculo(e) {
@@ -245,6 +336,53 @@ export default function Admin() {
         {activeTab === 'veiculos' && (
           <section style={{ marginTop: 18 }}>
             <h3>Veículos Cadastrados</h3>
+            
+            {editingVeiculo && (
+              <div style={{ padding: 16, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 24 }}>
+                <h4>Editar Veículo</h4>
+                <form onSubmit={submitEditVeiculo} style={{ display: 'grid', gap: 8, maxWidth: 520 }}>
+                  <input className="input" name="nome" placeholder="Nome do veículo" value={editForm.nome} onChange={handleEditChange} required />
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={{ fontWeight: 700 }}>Número de cadeiras</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <button type="button" className="btn btn-ghost" onClick={() => setEditForm(prev => ({ ...prev, cadeiras: Math.max(0, (Number(prev.cadeiras) || 0) - 1) }))}>-</button>
+                      <div style={{ minWidth: 56, textAlign: 'center', fontWeight: 700, padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff' }}>{editForm.cadeiras}</div>
+                      <button type="button" className="btn" onClick={() => setEditForm(prev => ({ ...prev, cadeiras: (Number(prev.cadeiras) || 0) + 1 }))}>+</button>
+                    </div>
+                  </div>
+
+                  <input className="input" name="acessorios" placeholder="Acessórios (vírgula separados)" value={editForm.acessorios} onChange={handleEditChange} />
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={{ fontWeight: 700 }}>Preço da diária (R$)</label>
+                    <input className="input" type="number" step="0.01" min="0" name="precoDiaria" placeholder="0.00" value={editForm.precoDiaria} onChange={handleEditChange} required />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <label style={{ fontWeight: 700 }}>Nova foto (opcional)</label>
+                    <input type="file" accept="image/*" onChange={handleEditFotoChange} />
+                    {editFotoPreview && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                        <img src={editFotoPreview} alt="preview" style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          <div style={{ fontSize: 13, color: '#374151' }}>{editFotoFile && editFotoFile.name}</div>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button type="button" className="btn btn-ghost" onClick={removeEditFoto}>Remover</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn" type="submit">Salvar Alterações</button>
+                    <button className="btn btn-ghost" type="button" onClick={cancelEditVeiculo}>Cancelar</button>
+                  </div>
+                </form>
+              </div>
+            )}
+
             <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
               {veiculos.length === 0 && <div>Nenhum veículo cadastrado</div>}
               {veiculos.map(v => (
@@ -261,7 +399,8 @@ export default function Admin() {
                       <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, marginTop: 4 }}>R$ {Number(v.precoDiaria).toFixed(2)}/dia</div>
                     </div>
                   </div>
-                  <div>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button className="btn btn-ghost" onClick={() => handleEditVeiculo(v)}>Editar</button>
                     <button className="btn btn-ghost" onClick={() => deleteVeiculo(v.id)}>Deletar</button>
                   </div>
                 </div>

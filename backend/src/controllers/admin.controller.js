@@ -65,6 +65,23 @@ exports.deleteVeiculo = async (req, res) => {
     res.status(500).json({ error: err.message })
   }
 }
+
+exports.updateVeiculo = async (req, res) => {
+  try {
+    if (!isAdminToken(req)) return res.status(401).json({ error: 'Unauthorized' })
+    const id = Number(req.params.id)
+    const { nome, cadeiras, acessorios, precoDiaria } = req.body
+    // If multer handled a file, build a public URL path
+    let foto = null
+    if (req.file && req.file.filename) {
+      foto = `/uploads/${req.file.filename}`
+    }
+    const veiculo = await adminService.updateVeiculo(id, { nome, cadeiras, acessorios, foto, precoDiaria })
+    res.json({ veiculo })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+}
 exports.listReservas = async (req, res) => {
   try {
     if (!isAdminToken(req)) return res.status(401).json({ error: 'Unauthorized' })

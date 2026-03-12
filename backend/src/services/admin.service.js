@@ -44,4 +44,31 @@ async function deleteVeiculo(id) {
   await prisma.veiculo.delete({ where: { id } })
 }
 
-module.exports = { createVeiculo, listUsers, deleteUser, listVeiculos, deleteVeiculo }
+async function updateVeiculo(id, { nome, cadeiras, acessorios, foto, precoDiaria }) {
+  if (!nome) throw new Error('Nome é obrigatório')
+  if (!precoDiaria && precoDiaria !== 0) throw new Error('Preço da diária é obrigatório')
+  const preco = Number(precoDiaria)
+  if (isNaN(preco) || preco < 0) throw new Error('Preço da diária deve ser um número válido')
+  if (preco === 0) throw new Error('Preço da diária deve ser maior que zero')
+  
+  const veiculo = await prisma.veiculo.findUnique({ where: { id } })
+  if (!veiculo) throw new Error('Veículo não encontrado')
+  
+  // If a new photo is provided, remove the old one
+  if (foto && veiculo.foto) {
+    try {
+      const filePath = path.resolve(__dirname, '../../', veiculo.foto.replace(/^\//, ''))
+      if (fs.existsSync(filePath)) await fs.promises.unlink(filePath)
+    } catch (err) {
+      console.error('Erro ao remover arquivo de foto anterior:', err.message)
+    }
+  }
+  
+  const data = { nome, cadeiras: Number(cadeiras) || 0, acessorios, precoDiaria: preco }
+  // Only update foto if a new one is provided
+  if (foto) data.foto = foto
+  
+  return await prisma.veiculo.update({ where: { id }, data })
+}
+
+module.exports = { createVeiculo, listUsers, deleteUser, listVeiculos, deleteVeiculo, updateVeiculo }

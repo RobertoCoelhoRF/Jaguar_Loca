@@ -23,6 +23,7 @@ const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024
 
 // Accept multipart/form-data with optional `foto` file
 router.post('/veiculos', upload.single('foto'), adminController.createVeiculo)
+router.put('/veiculos/:id', upload.single('foto'), adminController.updateVeiculo)
 router.get('/veiculos', adminController.listVeiculos)
 router.get('/users', adminController.listUsers)
 router.delete('/users/:id', adminController.deleteUser)
