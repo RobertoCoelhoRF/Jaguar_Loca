@@ -12,6 +12,8 @@ export const useModal = () => {
       type: config.type || 'info',
       confirmText: config.confirmText || 'OK',
       cancelText: config.cancelText || 'Cancelar',
+      inputType: config.inputType || 'text',
+      inputPlaceholder: config.inputPlaceholder || '',
       onConfirm: config.onConfirm || null,
       onCancel: config.onCancel || null
     }
@@ -73,6 +75,19 @@ export const useModal = () => {
     })
   }, [show])
 
+  const prompt = useCallback((message, onConfirm, title = '', inputType = 'text', inputPlaceholder = '', confirmText = 'Confirmar', cancelText = 'Cancelar') => {
+    return show({
+      title,
+      message,
+      type: 'prompt',
+      confirmText,
+      cancelText,
+      inputType,
+      inputPlaceholder,
+      onConfirm
+    })
+  }, [show])
+
   return {
     modals,
     show,
@@ -82,6 +97,7 @@ export const useModal = () => {
     success,
     error,
     confirm,
-    warning
+    warning,
+    prompt
   }
 }
