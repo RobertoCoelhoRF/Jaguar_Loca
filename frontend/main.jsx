@@ -8,20 +8,35 @@ import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import Admin from './pages/admin/Admin'
 import MinhasReservas from './pages/minhas-reservas/MinhasReservas'
+import { ModalProvider, useModalContext } from './context/ModalContext'
+import ModalContainer from './components/ModalContainer'
+
+function RootContent() {
+	const { modals, close } = useModalContext()
+
+	return (
+		<>
+			<BrowserRouter>
+				<Routes>
+					<Route path="/" element={<App />} />
+					<Route path="/login" element={<Login />} />
+					<Route path="/register" element={<Register />} />
+					<Route path="/admin" element={<Admin />} />
+					<Route path="/minhas-reservas" element={<MinhasReservas />} />
+				</Routes>
+			</BrowserRouter>
+			<ModalContainer modals={modals} onClose={close} />
+		</>
+	)
+}
 
 const rootEl = document.getElementById('root')
 const root = createRoot(rootEl)
 
 root.render(
 	<React.StrictMode>
-		<BrowserRouter>
-			<Routes>
-				<Route path="/" element={<App />} />
-				<Route path="/login" element={<Login />} />
-				<Route path="/register" element={<Register />} />
-				<Route path="/admin" element={<Admin />} />
-				<Route path="/minhas-reservas" element={<MinhasReservas />} />
-			</Routes>
-		</BrowserRouter>
+		<ModalProvider>
+			<RootContent />
+		</ModalProvider>
 	</React.StrictMode>
 )

@@ -2,9 +2,11 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import Header from '../components/header/Header'
 import Footer from '../components/footer/Footer'
+import { useModalContext } from '../context/ModalContext'
 
 export default function Register() {
   const navigate = useNavigate()
+  const modal = useModalContext()
   const [formData, setFormData] = useState({
     name: '',
     cpf: '',
@@ -26,23 +28,23 @@ export default function Register() {
     const { name, cpf, email, password, confirm } = formData
 
     if (name.split(' ').length < 2) {
-      alert('Informe nome e sobrenome.')
+      modal.alert('Informe nome e sobrenome.', 'warning')
       return
     }
     if (!/\d{3}\.\d{3}\.\d{3}-\d{2}/.test(cpf)) {
-      alert('CPF deve estar no formato 000.000.000-00.')
+      modal.alert('CPF deve estar no formato 000.000.000-00.', 'warning')
       return
     }
     if (!email.includes('@')) {
-      alert('Informe um e-mail válido.')
+      modal.alert('Informe um e-mail válido.', 'warning')
       return
     }
     if (password.length < 6) {
-      alert('A senha precisa ter pelo menos 6 caracteres.')
+      modal.alert('A senha precisa ter pelo menos 6 caracteres.', 'warning')
       return
     }
     if (password !== confirm) {
-      alert('As senhas não coincidem.')
+      modal.alert('As senhas não coincidem.', 'warning')
       return
     }
 
@@ -56,15 +58,15 @@ export default function Register() {
       .then(res => res.json())
       .then(data => {
         if (data.user) {
-          alert('Cadastro realizado com sucesso!')
+          modal.success('Cadastro realizado com sucesso!', 'Bem-vindo!')
           navigate('/')
         } else {
-          alert(data.error || 'Erro ao registrar')
+          modal.error(data.error || 'Erro ao registrar', 'Erro')
         }
       })
       .catch(err => {
         console.error(err)
-        alert('Erro ao conectar com o servidor')
+        modal.error('Erro ao conectar com o servidor', 'Falha na conexão')
       })
   }
 

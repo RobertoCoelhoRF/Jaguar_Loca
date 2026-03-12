@@ -4,8 +4,10 @@ import headerBar from '../../assets/header-bar.png'
 import './Header.css'
 import Profile_user from '../profile_user/Profile_user'
 import Profile_admin from '../profile_admin/Profile_admin'
+import { useModalContext } from '../../context/ModalContext'
 
 export default function Header(){
+  const modal = useModalContext()
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
 
@@ -50,6 +52,14 @@ export default function Header(){
   }
 
   const handleChangePassword = () => {
+    modal.show({
+      title: 'Alterar Senha',
+      message: 'Digite a nova senha (mínimo 6 caracteres)',
+      type: 'warning',
+      confirmText: 'Confirmar',
+      cancelText: 'Cancelar'
+    })
+    // This is a simplified approach - in production, you'd want a proper form modal
     const newPassword = prompt('Digite a nova senha:')
     if (newPassword && newPassword.length >= 6) {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
@@ -64,14 +74,14 @@ export default function Header(){
         .then(res => res.json())
         .then(data => {
             if (data.ok) {
-            alert('Senha alterada com sucesso!')
+            modal.success('Senha alterada com sucesso!', 'Sucesso!')
           } else {
-            alert(data.error || 'Erro ao alterar senha')
+            modal.error(data.error || 'Erro ao alterar senha', 'Erro')
           }
         })
-        .catch(err => alert('Erro ao conectar: ' + err.message))
+        .catch(err => modal.error('Erro ao conectar: ' + err.message, 'Falha na conexão'))
     } else if (newPassword) {
-      alert('Senha deve ter pelo menos 6 caracteres')
+      modal.alert('Senha deve ter pelo menos 6 caracteres', 'warning')
     }
   }
 
@@ -92,38 +102,44 @@ export default function Header(){
             if (data.ok) {
             localStorage.setItem('userEmail', newEmail)
             setUser({ ...user, email: newEmail })
-            alert('E-mail alterado com sucesso!')
+            modal.success('E-mail alterado com sucesso!', 'Sucesso!')
           } else {
-            alert(data.error || 'Erro ao alterar e-mail')
+            modal.error(data.error || 'Erro ao alterar e-mail', 'Erro')
           }
         })
-        .catch(err => alert('Erro ao conectar: ' + err.message))
+        .catch(err => modal.error('Erro ao conectar: ' + err.message, 'Falha na conexão'))
     } else if (newEmail) {
-      alert('E-mail inválido')
+      modal.alert('E-mail inválido', 'warning')
     }
   }
 
   const handleDeleteAccount = () => {
-    if (window.confirm('Tem certeza que deseja deletar sua conta? Esta ação não pode ser desfeita.')) {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
-      fetch(`${backendUrl}/auth/account`, {
-        method: 'DELETE',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        }
-      })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-            alert('Conta deletada com sucesso')
-            handleLogout()
-          } else {
-            alert(data.error || 'Erro ao deletar conta')
+    modal.confirm(
+      'Tem certeza que deseja deletar sua conta? Esta ação não pode ser desfeita e todos os seus dados serão permanentemente removidos.',
+      () => {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
+        fetch(`${backendUrl}/auth/account`, {
+          method: 'DELETE',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.token}`
           }
         })
-        .catch(err => alert('Erro ao conectar: ' + err.message))
-    }
+          .then(res => res.json())
+          .then(data => {
+              if (data.ok) {
+              modal.success('Conta deletada com sucesso', 'Sucesso!')
+              handleLogout()
+            } else {
+              modal.error(data.error || 'Erro ao deletar conta', 'Erro')
+            }
+          })
+          .catch(err => modal.error('Erro ao conectar: ' + err.message, 'Falha na conexão'))
+      },
+      'Deletar Conta',
+      'Sim, deletar',
+      'Cancelar'
+    )
   }
 
   const goToMyReservations = () => {

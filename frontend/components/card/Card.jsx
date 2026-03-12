@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import './Card.css'
+import { useModalContext } from '../../context/ModalContext'
 
 function formatToday() {
   const today = new Date()
@@ -10,6 +11,7 @@ function formatToday() {
 }
 
 export default function Card({ car }) {
+  const modal = useModalContext()
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState(formatToday())
   const [devDate, setDevDate] = useState(formatToday())
@@ -92,15 +94,15 @@ export default function Card({ car }) {
       if (resp.ok && data.reserva) {
         // notify parent to reload vehicles
         window.dispatchEvent(new Event('veiculos-changed'))
-        alert('Reserva criada com sucesso')
+        modal.success('Reserva criada com sucesso', 'Sucesso!')
         closeModal()
       } else {
         console.error('Erro ao criar reserva:', data)
-        alert(data.error || 'Erro ao criar reserva')
+        modal.error(data.error || 'Erro ao criar reserva', 'Erro')
       }
     } catch (err) {
       console.error('Falha ao criar reserva:', err)
-      alert('Erro na requisição')
+      modal.error('Erro na requisição', 'Falha na conexão')
     }
   }
 

@@ -2,9 +2,11 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import Header from '../components/header/Header'
 import Footer from '../components/footer/Footer'
+import { useModalContext } from '../context/ModalContext'
 
 export default function Login() {
   const navigate = useNavigate()
+  const modal = useModalContext()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -26,17 +28,17 @@ export default function Login() {
     const { email, password } = formData
 
     if (!email.includes('@')) {
-      alert('Informe um e-mail válido.')
+      modal.alert('Informe um e-mail válido.', 'warning')
       return
     }
     if (password.length < 6) {
-      alert('A senha precisa ter pelo menos 6 caracteres.')
+      modal.alert('A senha precisa ter pelo menos 6 caracteres.', 'warning')
       return
     }
 
     if (loginType === 'admin') {
       if (!formData.adminCode || formData.adminCode.trim().length === 0) {
-        alert('Informe o código de administrador.')
+        modal.alert('Informe o código de administrador.', 'warning')
         return
       }
     }
@@ -53,11 +55,11 @@ export default function Login() {
         localStorage.setItem('loginType', 'admin')
         localStorage.setItem('email', email)
         window.dispatchEvent(new Event('auth-changed'))
-        alert('Login de administrador realizado com sucesso!')
+        modal.success('Login de administrador realizado com sucesso!', 'Bem-vindo!')
         navigate('/')
         return
       } else {
-        alert('Credenciais de administrador inválidas')
+        modal.error('Credenciais de administrador inválidas', 'Erro')
         return
       }
     }
@@ -81,15 +83,15 @@ export default function Login() {
           }
           // notificar Header e outras partes da aplicação sobre mudança de auth
           window.dispatchEvent(new Event('auth-changed'))
-          alert('Login realizado com sucesso!')
+          modal.success('Login realizado com sucesso!', 'Bem-vindo!')
           navigate('/')
         } else {
-          alert(data.error || 'Erro ao fazer login')
+          modal.error(data.error || 'Erro ao fazer login', 'Erro')
         }
       })
       .catch(err => {
         console.error(err)
-        alert('Erro ao conectar com o servidor')
+        modal.error('Erro ao conectar com o servidor', 'Falha na conexão')
       })
   }
 

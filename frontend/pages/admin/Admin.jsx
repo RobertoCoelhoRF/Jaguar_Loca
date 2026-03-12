@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../../components/header/Header'
 import Footer from '../../components/footer/Footer'
+import { useModalContext } from '../../context/ModalContext'
 
 export default function Admin() {
+  const modal = useModalContext()
   const [veiculos, setVeiculos] = useState([])
   const [users, setUsers] = useState([])
   const [reservas, setReservas] = useState([])
@@ -115,11 +117,11 @@ export default function Admin() {
     e.preventDefault()
 
     if (!editForm.nome.trim()) {
-      alert('Nome do veículo é obrigatório')
+      modal.alert('Nome do veículo é obrigatório', 'warning')
       return
     }
     if (!editForm.precoDiaria || Number(editForm.precoDiaria) <= 0) {
-      alert('Preço da diária é obrigatório e deve ser maior que zero')
+      modal.alert('Preço da diária é obrigatório e deve ser maior que zero', 'warning')
       return
     }
 
@@ -141,30 +143,29 @@ export default function Admin() {
       .then(r => r.json())
       .then(data => {
         if (data.veiculo) {
-          alert('Veículo atualizado com sucesso')
+          modal.success('Veículo atualizado com sucesso', 'Sucesso!')
           cancelEditVeiculo()
           loadVeiculos()
         } else {
           console.error('Erro ao atualizar veículo:', data)
-          alert(`Erro ao atualizar: ${data.error || 'Erro desconhecido'}`)
+          modal.error(data.error || 'Erro desconhecido ao atualizar', 'Erro')
         }
       })
       .catch(err => {
         console.error('Falha na requisição de atualização:', err)
-        alert(`Falha na requisição: ${err.message}`)
+        modal.error(err.message, 'Falha na conexão')
       })
   }
 
   function createVeiculo(e) {
     e.preventDefault()
     
-    // Validação básica no frontend
     if (!form.nome.trim()) {
-      alert('Nome do veículo é obrigatório')
+      modal.alert('Nome do veículo é obrigatório', 'warning')
       return
     }
     if (!form.precoDiaria || Number(form.precoDiaria) <= 0) {
-      alert('Preço da diária é obrigatório e deve ser maior que zero')
+      modal.alert('Preço da diária é obrigatório e deve ser maior que zero', 'warning')
       return
     }
 
@@ -186,49 +187,84 @@ export default function Admin() {
       .then(r => r.json())
       .then(data => {
         if (data.veiculo) {
-          alert('Veículo cadastrado com sucesso')
+          modal.success('Veículo cadastrado com sucesso', 'Sucesso!')
           setForm({ nome: '', cadeiras: 0, acessorios: '', precoDiaria: '' })
           setFotoFile(null)
           setFotoPreview(null)
           loadVeiculos()
         } else {
           console.error('Erro ao cadastrar veículo:', data)
-          alert(`Erro ao cadastrar: ${data.error || 'Erro desconhecido'}`)
+          modal.error(data.error || 'Erro desconhecido ao cadastrar', 'Erro')
         }
       })
       .catch(err => {
         console.error('Falha na requisição de cadastro de veículo:', err)
-        alert(`Falha na requisição: ${err.message}`)
+        modal.error(err.message, 'Falha na conexão')
       })
   }
 
   function deleteUser(id) {
-    if (!confirm('Deletar usuário?')) return
-    fetch(`${backendUrl}/admin/users/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
-      .then(r => r.json())
-      .then(data => { if (data.ok) loadUsers(); else alert(data.error || 'Erro') })
+    modal.confirm(
+      'Tem certeza que deseja deletar este usuário? Esta ação não pode ser desfeita.',
+      () => {
+        fetch(`${backendUrl}/admin/users/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              modal.success('Usuário deletado com sucesso', 'Sucesso!')
+              loadUsers()
+            } else {
+              modal.error(data.error || 'Erro ao deletar usuário', 'Erro')
+            }
+          })
+      },
+      'Deletar Usuário',
+      'Deletar',
+      'Cancelar'
+    )
   }
 
   function deleteVeiculo(id) {
-    if (!confirm('Deletar veículo?')) return
-    fetch(`${backendUrl}/admin/veiculos/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
-      .then(r => r.json())
-      .then(data => { if (data.ok) loadVeiculos(); else alert(data.error || 'Erro') })
+    modal.confirm(
+      'Tem certeza que deseja deletar este veículo? Esta ação não pode ser desfeita.',
+      () => {
+        fetch(`${backendUrl}/admin/veiculos/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              modal.success('Veículo deletado com sucesso', 'Sucesso!')
+              loadVeiculos()
+            } else {
+              modal.error(data.error || 'Erro ao deletar veículo', 'Erro')
+            }
+          })
+      },
+      'Deletar Veículo',
+      'Deletar',
+      'Cancelar'
+    )
   }
 
   function deleteReserva(id) {
-    if (!confirm('Cancelar esta reserva?')) return
-    fetch(`${backendUrl}/admin/reservas/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
-      .then(r => r.json())
-      .then(data => { 
-        if (data.ok) {
-          alert('Reserva cancelada com sucesso')
-          loadReservas()
-          loadVeiculos()
-        } else {
-          alert(data.error || 'Erro ao cancelar reserva')
-        }
-      })
+    modal.confirm(
+      'Tem certeza que deseja cancelar esta reserva? Esta ação não pode ser desfeita.',
+      () => {
+        fetch(`${backendUrl}/admin/reservas/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              modal.success('Reserva cancelada com sucesso', 'Sucesso!')
+              loadReservas()
+              loadVeiculos()
+            } else {
+              modal.error(data.error || 'Erro ao cancelar reserva', 'Erro')
+            }
+          })
+      },
+      'Cancelar Reserva',
+      'Confirmar',
+      'Cancelar'
+    )
   }
 
   return (

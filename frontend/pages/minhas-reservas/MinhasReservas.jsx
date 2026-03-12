@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../../components/header/Header'
 import Footer from '../../components/footer/Footer'
+import { useModalContext } from '../../context/ModalContext'
 
 export default function MinhasReservas() {
+  const modal = useModalContext()
   const [reservas, setReservas] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -27,22 +29,29 @@ export default function MinhasReservas() {
   }, [])
 
   function deleteReserva(id) {
-    if (!confirm('Deseja cancelar esta reserva?')) return
-    const token = localStorage.getItem('token')
-    fetch(`${backendUrl}/reservas/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.ok) {
-          alert('Reserva cancelada com sucesso')
-          loadReservas()
-        } else {
-          alert(data.error || 'Erro ao cancelar reserva')
-        }
-      })
-      .catch(err => alert('Erro ao cancelar reserva: ' + err.message))
+    modal.confirm(
+      'Tem certeza que deseja cancelar esta reserva? Esta ação não pode ser desfeita.',
+      () => {
+        const token = localStorage.getItem('token')
+        fetch(`${backendUrl}/reservas/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              modal.success('Reserva cancelada com sucesso', 'Sucesso!')
+              loadReservas()
+            } else {
+              modal.error(data.error || 'Erro ao cancelar reserva', 'Erro')
+            }
+          })
+          .catch(err => modal.error('Erro ao cancelar reserva: ' + err.message, 'Falha na conexão'))
+      },
+      'Cancelar Reserva',
+      'Confirmar',
+      'Não, manter'
+    )
   }
 
   return (
