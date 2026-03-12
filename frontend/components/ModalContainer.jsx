@@ -13,9 +13,11 @@ export default function ModalContainer({ modals, onClose }) {
           type={modal.type}
           confirmText={modal.confirmText}
           cancelText={modal.cancelText}
-          onConfirm={() => {
+          inputType={modal.inputType}
+          inputPlaceholder={modal.inputPlaceholder}
+          onConfirm={(value) => {
             if (modal.onConfirm) {
-              modal.onConfirm()
+              modal.onConfirm(value)
             }
             onClose(modal.id)
           }}
