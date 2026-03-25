@@ -20,9 +20,9 @@ async function createReserva({ usuarioId, veiculoId, dataRetirada, horaRetirada,
   if (isNaN(valTotal) || valTotal < 0) throw new Error('Valor total deve ser um número válido')
   if (valTotal === 0) throw new Error('Valor total deve ser maior que zero')
 
-  // combine date and time into a Date object for dataRetirada
+  // combine date and time into Date objects using the same pickup time for return
   const dt = new Date(`${dataRetirada}T${horaRetirada}`)
-  const dtDev = new Date(dataDevolucao)
+  const dtDev = new Date(`${dataDevolucao}T${horaRetirada}`)
 
   const reserva = await prisma.reserva.create({ data: { usuarioId: Number(usuarioId), veiculoId: Number(veiculoId), dataRetirada: dt, horaRetirada: horaRetirada, dataDevolucao: dtDev, valorTotal: valTotal, observacoes } })
 

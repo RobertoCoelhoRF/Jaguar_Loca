@@ -83,7 +83,7 @@ export default function MinhasReservas() {
                     <strong>Data de retirada:</strong> {new Date(r.dataRetirada).toLocaleDateString('pt-BR')} às {r.horaRetirada}
                   </div>
                   <div style={{ fontSize: 13, marginTop: 4 }}>
-                    <strong>Data de devolução:</strong> {new Date(r.dataDevolucao).toLocaleDateString('pt-BR')}
+                    <strong>Data de devolução:</strong> {new Date(r.dataDevolucao).toLocaleDateString('pt-BR')} às {r.horaRetirada}
                   </div>
                   <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, marginTop: 6 }}>
                     <strong>Total a pagar:</strong> R$ {Number(r.valorTotal).toFixed(2)}

@@ -148,13 +148,19 @@ export default function Card({ car }) {
                     <input className="input" type="date" id={`res-date-${car.id}`} value={date} min={formatToday()} onChange={e => setDate(e.target.value)} required />
                   </div>
                   <div className="form-group">
-                    <label className="label" htmlFor={`res-time-${car.id}`}>Horário</label>
+                    <label className="label" htmlFor={`res-time-${car.id}`}>Horário de retirada</label>
                     <input className="input" type="text" id={`res-time-${car.id}`} value={FIXED_PICKUP_TIME} readOnly disabled />
                   </div>
                 </div>
-                <div className="form-group">
-                  <label className="label" htmlFor={`res-devdate-${car.id}`}>Data de devolução</label>
-                  <input className="input" type="date" id={`res-devdate-${car.id}`} value={devDate} min={date} onChange={e => setDevDate(e.target.value)} required />
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="label" htmlFor={`res-devdate-${car.id}`}>Data de devolução</label>
+                    <input className="input" type="date" id={`res-devdate-${car.id}`} value={devDate} min={date} onChange={e => setDevDate(e.target.value)} required />
+                  </div>
+                  <div className="form-group">
+                    <label className="label" htmlFor={`res-devtime-${car.id}`}>Horário de devolução</label>
+                    <input className="input" type="text" id={`res-devtime-${car.id}`} value={FIXED_PICKUP_TIME} readOnly disabled />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="label" htmlFor={`res-notes-${car.id}`}>Observações</label>

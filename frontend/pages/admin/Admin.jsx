@@ -467,7 +467,7 @@ export default function Admin() {
                         <strong>Retirada:</strong> {new Date(r.dataRetirada).toLocaleDateString('pt-BR')} às {r.horaRetirada}
                       </div>
                       <div style={{ fontSize: 13, color: '#666', marginTop: 2 }}>
-                        <strong>Devolução:</strong> {new Date(r.dataDevolucao).toLocaleDateString('pt-BR')}
+                        <strong>Devolução:</strong> {new Date(r.dataDevolucao).toLocaleDateString('pt-BR')} às {r.horaRetirada}
                       </div>
                       <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, marginTop: 2 }}>
                         <strong>Total:</strong> R$ {Number(r.valorTotal).toFixed(2)}
