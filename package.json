@@ -10,6 +10,7 @@
     "preview": "vite preview frontend",
     "start": "node backend/index.js",
     "prisma:generate": "prisma generate --schema=backend/prisma/schema.prisma",
+    "prisma:build": "npm run prisma:generate && npm run prisma:studio",
     "prisma:migrate": "prisma migrate dev --name init --schema=backend/prisma/schema.prisma",
     "prisma:studio": "prisma studio --schema ./backend/prisma/schema.prisma"
   },
