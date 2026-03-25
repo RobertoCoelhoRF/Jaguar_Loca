@@ -1,6 +1,8 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './Card.css'
 import { useModalContext } from '../../context/ModalContext'
+
+const FIXED_PICKUP_TIME = '08:00'
 
 function formatToday() {
   const today = new Date()
@@ -15,17 +17,7 @@ export default function Card({ car }) {
   const [open, setOpen] = useState(false)
   const [date, setDate] = useState(formatToday())
   const [devDate, setDevDate] = useState(formatToday())
-  const [time, setTime] = useState('08:00')
   const [notes, setNotes] = useState('')
-
-  const times = useMemo(() => {
-    const arr = []
-    for (let h = 8; h <= 18; h++) {
-      const hh = String(h).padStart(2, '0')
-      arr.push(`${hh}:00`)
-    }
-    return arr
-  }, [])
 
   function calculateDays() {
     const d1 = new Date(date)
@@ -43,7 +35,6 @@ export default function Card({ car }) {
   function openModal() {
     setDate(formatToday())
     setDevDate(formatToday())
-    setTime('08:00')
     setNotes('')
     setOpen(true)
   }
@@ -88,7 +79,7 @@ export default function Card({ car }) {
       const resp = await fetch(`${backendUrl}/reservas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ veiculoId: car.id, dataRetirada: date, horaRetirada: time, dataDevolucao: devDate, valorTotal: calculateTotal(), observacoes: notes })
+        body: JSON.stringify({ veiculoId: car.id, dataRetirada: date, horaRetirada: FIXED_PICKUP_TIME, dataDevolucao: devDate, valorTotal: calculateTotal(), observacoes: notes })
       })
       const data = await resp.json()
       if (resp.ok && data.reserva) {
@@ -162,9 +153,7 @@ export default function Card({ car }) {
                   </div>
                   <div className="form-group">
                     <label className="label" htmlFor={`res-time-${car.id}`}>Horário</label>
-                    <select className="input" id={`res-time-${car.id}`} value={time} onChange={e => setTime(e.target.value)} required>
-                      {times.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
+                    <input className="input" type="text" id={`res-time-${car.id}`} value={FIXED_PICKUP_TIME} readOnly disabled />
                   </div>
                 </div>
                 <div className="form-group">

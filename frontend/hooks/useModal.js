@@ -12,6 +12,7 @@ export const useModal = () => {
       type: config.type || 'info',
       confirmText: config.confirmText || 'OK',
       cancelText: config.cancelText || 'Cancelar',
+      inputConfig: config.inputConfig || null,
       onConfirm: config.onConfirm || null,
       onCancel: config.onCancel || null
     }

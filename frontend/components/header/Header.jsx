@@ -54,63 +54,75 @@ export default function Header(){
   const handleChangePassword = () => {
     modal.show({
       title: 'Alterar Senha',
-      message: 'Digite a nova senha (mínimo 6 caracteres)',
+      message: 'Digite a nova senha abaixo:',
       type: 'warning',
       confirmText: 'Confirmar',
-      cancelText: 'Cancelar'
-    })
-    // This is a simplified approach - in production, you'd want a proper form modal
-    const newPassword = prompt('Digite a nova senha:')
-    if (newPassword && newPassword.length >= 6) {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
-      fetch(`${backendUrl}/auth/password`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        },
-        body: JSON.stringify({ newPassword })
-      })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-            modal.success('Senha alterada com sucesso!', 'Sucesso!')
-          } else {
-            modal.error(data.error || 'Erro ao alterar senha', 'Erro')
-          }
+      cancelText: 'Cancelar',
+      inputConfig: { placeholder: 'Nova senha (mínimo 6 caracteres)', type: 'password' },
+      onConfirm: (newPassword) => {
+        if (!newPassword) return
+        if (newPassword.length < 6) {
+          modal.alert('Senha deve ter pelo menos 6 caracteres', 'warning')
+          return
+        }
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
+        fetch(`${backendUrl}/auth/password`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.token}`
+          },
+          body: JSON.stringify({ newPassword })
         })
-        .catch(err => modal.error('Erro ao conectar: ' + err.message, 'Falha na conexão'))
-    } else if (newPassword) {
-      modal.alert('Senha deve ter pelo menos 6 caracteres', 'warning')
-    }
+          .then(res => res.json())
+          .then(data => {
+            if (data.ok) {
+              modal.success('Senha alterada com sucesso!', 'Sucesso!')
+            } else {
+              modal.error(data.error || 'Erro ao alterar senha', 'Erro')
+            }
+          })
+          .catch(err => modal.error('Erro ao conectar: ' + err.message, 'Falha na conexão'))
+      }
+    })
   }
 
   const handleChangeEmail = () => {
-    const newEmail = prompt('Digite o novo e-mail:')
-    if (newEmail && newEmail.includes('@')) {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
-      fetch(`${backendUrl}/auth/email`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        },
-        body: JSON.stringify({ newEmail })
-      })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-            localStorage.setItem('userEmail', newEmail)
-            setUser({ ...user, email: newEmail })
-            modal.success('E-mail alterado com sucesso!', 'Sucesso!')
-          } else {
-            modal.error(data.error || 'Erro ao alterar e-mail', 'Erro')
-          }
+    modal.show({
+      title: 'Alterar E-mail',
+      message: 'Digite o novo endereço de e-mail abaixo:',
+      type: 'info',
+      confirmText: 'Confirmar',
+      cancelText: 'Cancelar',
+      inputConfig: { placeholder: 'novo@email.com', type: 'email' },
+      onConfirm: (newEmail) => {
+        if (!newEmail) return
+        if (!newEmail.includes('@')) {
+          modal.alert('E-mail inválido', 'warning')
+          return
+        }
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
+        fetch(`${backendUrl}/auth/email`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.token}`
+          },
+          body: JSON.stringify({ newEmail })
         })
-        .catch(err => modal.error('Erro ao conectar: ' + err.message, 'Falha na conexão'))
-    } else if (newEmail) {
-      modal.alert('E-mail inválido', 'warning')
-    }
+          .then(res => res.json())
+          .then(data => {
+            if (data.ok) {
+              localStorage.setItem('userEmail', newEmail)
+              setUser({ ...user, email: newEmail })
+              modal.success('E-mail alterado com sucesso!', 'Sucesso!')
+            } else {
+              modal.error(data.error || 'Erro ao alterar e-mail', 'Erro')
+            }
+          })
+          .catch(err => modal.error('Erro ao conectar: ' + err.message, 'Falha na conexão'))
+      }
+    })
   }
 
   const handleDeleteAccount = () => {
