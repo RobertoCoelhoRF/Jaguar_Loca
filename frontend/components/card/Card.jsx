@@ -113,11 +113,7 @@ export default function Card({ car }) {
             </div>
           )}
         </div>
-        {car.reserved ? (
-          <button className="reserve" disabled style={{ opacity: 0.7 }}>Já reservado</button>
-        ) : (
-          <button className="reserve" onClick={openModal}>Reservar</button>
-        )}
+        <button className="reserve" onClick={openModal}>Reservar</button>
       </article>
 
       {open && (

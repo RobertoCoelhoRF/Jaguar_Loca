@@ -41,6 +41,7 @@ export default function MinhasReservas() {
           .then(data => {
             if (data.ok) {
               modal.success('Reserva cancelada com sucesso', 'Sucesso!')
+              window.dispatchEvent(new Event('veiculos-changed'))
               loadReservas()
             } else {
               modal.error(data.error || 'Erro ao cancelar reserva', 'Erro')
