@@ -12,6 +12,20 @@ function formatToday() {
   return `${yyyy}-${mm}-${dd}`
 }
 
+function formatCategorias(car) {
+  const categorias = []
+  categorias.push(car.cambio === 'AUTOMATICO' ? 'Automático' : 'Manual')
+  categorias.push(car.vidroEletrico ? 'Vidro elétrico' : 'Sem vidro elétrico')
+  categorias.push(car.arCondicionado ? 'Ar-condicionado' : 'Sem ar-condicionado')
+  categorias.push(car.travaEletrica ? 'Trava elétrica' : 'Sem trava elétrica')
+  categorias.push(car.direcaoHidraulica ? 'Dir. hidráulica' : 'Sem dir. hidráulica')
+  if (car.portaMalas) {
+    const mapaPortaMalas = { PEQUENO: 'Porta-malas pequeno', MEDIO: 'Porta-malas médio', GRANDE: 'Porta-malas grande' }
+    categorias.push(mapaPortaMalas[car.portaMalas] || `Porta-malas ${String(car.portaMalas).toLowerCase()}`)
+  }
+  return categorias.join(' • ')
+}
+
 export default function Card({ car }) {
   const modal = useModalContext()
   const [open, setOpen] = useState(false)
@@ -106,7 +120,7 @@ export default function Card({ car }) {
         </div>
         <div className="car-meta small" style={{ marginTop: 8 }}>
           <div style={{ fontWeight: 700 }}>{car.cadeiras || '—'} cadeiras</div>
-          <div style={{ fontSize: 13, color: '#555' }}>{car.acessorios || 'Sem acessórios informados'}</div>
+          <div style={{ fontSize: 13, color: '#555' }}>{formatCategorias(car)}</div>
           {car.precoDiaria && (
             <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, marginTop: 6 }}>
               R$ {Number(car.precoDiaria).toFixed(2)}/dia
@@ -133,7 +147,7 @@ export default function Card({ car }) {
                   <div className="modal-product-meta small">Retirada em Jaguaruana — Loja Central</div>
                   <div style={{ marginTop: 8 }}>
                     <div style={{ fontSize: 14, fontWeight: 700 }}>{car?.cadeiras || '—'} cadeiras</div>
-                    <div style={{ fontSize: 13, color: '#555' }}>{car?.acessorios || 'Sem acessórios informados'}</div>                      {car?.precoDiaria && (
+                    <div style={{ fontSize: 13, color: '#555' }}>{formatCategorias(car)}</div>                      {car?.precoDiaria && (
                         <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, marginTop: 6 }}>
                           R$ {Number(car.precoDiaria).toFixed(2)}/dia
                         </div>

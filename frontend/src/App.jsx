@@ -21,7 +21,19 @@ export default function App() {
   useEffect(() => {
     function load() {
       fetch(`${backendUrl}/veiculos`).then(r => r.json()).then(data => {
-        const items = (data.veiculos || []).map(v => ({ id: v.id, name: v.nome, img: v.foto ? `${backendUrl}${v.foto}` : placeholder, cadeiras: v.cadeiras, acessorios: v.acessorios, precoDiaria: v.precoDiaria }))
+        const items = (data.veiculos || []).map(v => ({
+          id: v.id,
+          name: v.nome,
+          img: v.foto ? `${backendUrl}${v.foto}` : placeholder,
+          cadeiras: v.cadeiras,
+          vidroEletrico: Boolean(v.vidroEletrico),
+          arCondicionado: Boolean(v.arCondicionado),
+          cambio: v.cambio,
+          travaEletrica: Boolean(v.travaEletrica),
+          direcaoHidraulica: Boolean(v.direcaoHidraulica),
+          portaMalas: v.portaMalas,
+          precoDiaria: v.precoDiaria
+        }))
         setCars(items)
       }).catch(() => setCars([]))
     }

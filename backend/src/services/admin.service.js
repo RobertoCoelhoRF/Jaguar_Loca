@@ -3,13 +3,35 @@ const prisma = new PrismaClient()
 const fs = require('fs')
 const path = require('path')
 
-async function createVeiculo({ nome, cadeiras, acessorios, foto, precoDiaria }) {
+const CAMBIO_VALIDO = ['MANUAL', 'AUTOMATICO']
+const PORTA_MALAS_VALIDO = ['PEQUENO', 'MEDIO', 'GRANDE']
+
+function parseBoolean(value) {
+  return value === true || value === 'true' || value === 1 || value === '1'
+}
+
+async function createVeiculo({ nome, cadeiras, vidroEletrico, arCondicionado, cambio, travaEletrica, direcaoHidraulica, portaMalas, foto, precoDiaria }) {
   if (!nome) throw new Error('Nome é obrigatório')
   if (!precoDiaria && precoDiaria !== 0) throw new Error('Preço da diária é obrigatório')
   const preco = Number(precoDiaria)
   if (isNaN(preco) || preco < 0) throw new Error('Preço da diária deve ser um número válido')
   if (preco === 0) throw new Error('Preço da diária deve ser maior que zero')
-  const data = { nome, cadeiras: Number(cadeiras) || 0, acessorios, precoDiaria: preco }
+  const cambioNormalizado = String(cambio || 'MANUAL').toUpperCase()
+  const portaMalasNormalizado = String(portaMalas || 'MEDIO').toUpperCase()
+  if (!CAMBIO_VALIDO.includes(cambioNormalizado)) throw new Error('Tipo de câmbio inválido')
+  if (!PORTA_MALAS_VALIDO.includes(portaMalasNormalizado)) throw new Error('Tamanho do porta-malas inválido')
+
+  const data = {
+    nome,
+    cadeiras: Number(cadeiras) || 0,
+    vidroEletrico: parseBoolean(vidroEletrico),
+    arCondicionado: parseBoolean(arCondicionado),
+    cambio: cambioNormalizado,
+    travaEletrica: parseBoolean(travaEletrica),
+    direcaoHidraulica: parseBoolean(direcaoHidraulica),
+    portaMalas: portaMalasNormalizado,
+    precoDiaria: preco
+  }
   // Persist optional foto field (string path like `/uploads/filename`)
   if (foto) data.foto = foto
   const veiculo = await prisma.veiculo.create({ data })
@@ -44,12 +66,16 @@ async function deleteVeiculo(id) {
   await prisma.veiculo.delete({ where: { id } })
 }
 
-async function updateVeiculo(id, { nome, cadeiras, acessorios, foto, precoDiaria }) {
+async function updateVeiculo(id, { nome, cadeiras, vidroEletrico, arCondicionado, cambio, travaEletrica, direcaoHidraulica, portaMalas, foto, precoDiaria }) {
   if (!nome) throw new Error('Nome é obrigatório')
   if (!precoDiaria && precoDiaria !== 0) throw new Error('Preço da diária é obrigatório')
   const preco = Number(precoDiaria)
   if (isNaN(preco) || preco < 0) throw new Error('Preço da diária deve ser um número válido')
   if (preco === 0) throw new Error('Preço da diária deve ser maior que zero')
+  const cambioNormalizado = String(cambio || 'MANUAL').toUpperCase()
+  const portaMalasNormalizado = String(portaMalas || 'MEDIO').toUpperCase()
+  if (!CAMBIO_VALIDO.includes(cambioNormalizado)) throw new Error('Tipo de câmbio inválido')
+  if (!PORTA_MALAS_VALIDO.includes(portaMalasNormalizado)) throw new Error('Tamanho do porta-malas inválido')
   
   const veiculo = await prisma.veiculo.findUnique({ where: { id } })
   if (!veiculo) throw new Error('Veículo não encontrado')
@@ -64,7 +90,17 @@ async function updateVeiculo(id, { nome, cadeiras, acessorios, foto, precoDiaria
     }
   }
   
-  const data = { nome, cadeiras: Number(cadeiras) || 0, acessorios, precoDiaria: preco }
+  const data = {
+    nome,
+    cadeiras: Number(cadeiras) || 0,
+    vidroEletrico: parseBoolean(vidroEletrico),
+    arCondicionado: parseBoolean(arCondicionado),
+    cambio: cambioNormalizado,
+    travaEletrica: parseBoolean(travaEletrica),
+    direcaoHidraulica: parseBoolean(direcaoHidraulica),
+    portaMalas: portaMalasNormalizado,
+    precoDiaria: preco
+  }
   // Only update foto if a new one is provided
   if (foto) data.foto = foto
   

@@ -3,6 +3,20 @@ import Header from '../../components/header/Header'
 import Footer from '../../components/footer/Footer'
 import { useModalContext } from '../../context/ModalContext'
 
+function formatCategorias(veiculo) {
+  const categorias = []
+  categorias.push(veiculo?.cambio === 'AUTOMATICO' ? 'Automático' : 'Manual')
+  categorias.push(veiculo?.vidroEletrico ? 'Vidro elétrico' : 'Sem vidro elétrico')
+  categorias.push(veiculo?.arCondicionado ? 'Ar-condicionado' : 'Sem ar-condicionado')
+  categorias.push(veiculo?.travaEletrica ? 'Trava elétrica' : 'Sem trava elétrica')
+  categorias.push(veiculo?.direcaoHidraulica ? 'Dir. hidráulica' : 'Sem dir. hidráulica')
+  if (veiculo?.portaMalas) {
+    const mapaPortaMalas = { PEQUENO: 'Porta-malas pequeno', MEDIO: 'Porta-malas médio', GRANDE: 'Porta-malas grande' }
+    categorias.push(mapaPortaMalas[veiculo.portaMalas] || `Porta-malas ${String(veiculo.portaMalas).toLowerCase()}`)
+  }
+  return categorias.join(' • ')
+}
+
 export default function Admin() {
   const modal = useModalContext()
   const [veiculos, setVeiculos] = useState([])
@@ -10,10 +24,10 @@ export default function Admin() {
   const [reservas, setReservas] = useState([])
   const [fotoFile, setFotoFile] = useState(null)
   const [fotoPreview, setFotoPreview] = useState(null)
-  const [form, setForm] = useState({ nome: '', cadeiras: 0, acessorios: '', precoDiaria: '' })
+  const [form, setForm] = useState({ nome: '', cadeiras: 0, vidroEletrico: false, arCondicionado: false, cambio: 'MANUAL', travaEletrica: false, direcaoHidraulica: false, portaMalas: 'MEDIO', precoDiaria: '' })
   const [activeTab, setActiveTab] = useState('cadastro') // 'cadastro', 'usuarios', 'veiculos', 'reservas'
   const [editingVeiculo, setEditingVeiculo] = useState(null)
-  const [editForm, setEditForm] = useState({ nome: '', cadeiras: 0, acessorios: '', precoDiaria: '' })
+  const [editForm, setEditForm] = useState({ nome: '', cadeiras: 0, vidroEletrico: false, arCondicionado: false, cambio: 'MANUAL', travaEletrica: false, direcaoHidraulica: false, portaMalas: 'MEDIO', precoDiaria: '' })
   const [editFotoFile, setEditFotoFile] = useState(null)
   const [editFotoPreview, setEditFotoPreview] = useState(null)
 
@@ -49,9 +63,15 @@ export default function Admin() {
     }
   }, [fotoPreview, editFotoPreview])
 
-  function handleChange(e) { setForm(prev => ({ ...prev, [e.target.name]: e.target.value })) }
+  function handleChange(e) {
+    const { name, type, checked, value } = e.target
+    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+  }
 
-  function handleEditChange(e) { setEditForm(prev => ({ ...prev, [e.target.name]: e.target.value })) }
+  function handleEditChange(e) {
+    const { name, type, checked, value } = e.target
+    setEditForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+  }
 
   function handleFotoChange(e) {
     const f = e.target.files && e.target.files[0]
@@ -78,7 +98,12 @@ export default function Admin() {
     setEditForm({
       nome: veiculo.nome,
       cadeiras: veiculo.cadeiras,
-      acessorios: veiculo.acessorios,
+      vidroEletrico: Boolean(veiculo.vidroEletrico),
+      arCondicionado: Boolean(veiculo.arCondicionado),
+      cambio: veiculo.cambio || 'MANUAL',
+      travaEletrica: Boolean(veiculo.travaEletrica),
+      direcaoHidraulica: Boolean(veiculo.direcaoHidraulica),
+      portaMalas: veiculo.portaMalas || 'MEDIO',
       precoDiaria: veiculo.precoDiaria
     })
     setEditFotoFile(null)
@@ -108,7 +133,7 @@ export default function Admin() {
   function cancelEditVeiculo() {
     if (editFotoPreview) URL.revokeObjectURL(editFotoPreview)
     setEditingVeiculo(null)
-    setEditForm({ nome: '', cadeiras: 0, acessorios: '', precoDiaria: '' })
+    setEditForm({ nome: '', cadeiras: 0, vidroEletrico: false, arCondicionado: false, cambio: 'MANUAL', travaEletrica: false, direcaoHidraulica: false, portaMalas: 'MEDIO', precoDiaria: '' })
     setEditFotoFile(null)
     setEditFotoPreview(null)
   }
@@ -130,13 +155,18 @@ export default function Admin() {
       const fd = new FormData()
       fd.append('nome', editForm.nome)
       fd.append('cadeiras', String(Number(editForm.cadeiras)))
-      fd.append('acessorios', editForm.acessorios)
+      fd.append('vidroEletrico', String(Boolean(editForm.vidroEletrico)))
+      fd.append('arCondicionado', String(Boolean(editForm.arCondicionado)))
+      fd.append('cambio', editForm.cambio)
+      fd.append('travaEletrica', String(Boolean(editForm.travaEletrica)))
+      fd.append('direcaoHidraulica', String(Boolean(editForm.direcaoHidraulica)))
+      fd.append('portaMalas', editForm.portaMalas)
       fd.append('precoDiaria', editForm.precoDiaria)
       fd.append('foto', editFotoFile)
       options.body = fd
     } else {
       options.headers['Content-Type'] = 'application/json'
-      options.body = JSON.stringify({ nome: editForm.nome, cadeiras: Number(editForm.cadeiras), acessorios: editForm.acessorios, precoDiaria: Number(editForm.precoDiaria) })
+      options.body = JSON.stringify({ nome: editForm.nome, cadeiras: Number(editForm.cadeiras), vidroEletrico: Boolean(editForm.vidroEletrico), arCondicionado: Boolean(editForm.arCondicionado), cambio: editForm.cambio, travaEletrica: Boolean(editForm.travaEletrica), direcaoHidraulica: Boolean(editForm.direcaoHidraulica), portaMalas: editForm.portaMalas, precoDiaria: Number(editForm.precoDiaria) })
     }
 
     fetch(`${backendUrl}/admin/veiculos/${editingVeiculo}`, options)
@@ -174,13 +204,18 @@ export default function Admin() {
       const fd = new FormData()
       fd.append('nome', form.nome)
       fd.append('cadeiras', String(Number(form.cadeiras)))
-      fd.append('acessorios', form.acessorios)
+      fd.append('vidroEletrico', String(Boolean(form.vidroEletrico)))
+      fd.append('arCondicionado', String(Boolean(form.arCondicionado)))
+      fd.append('cambio', form.cambio)
+      fd.append('travaEletrica', String(Boolean(form.travaEletrica)))
+      fd.append('direcaoHidraulica', String(Boolean(form.direcaoHidraulica)))
+      fd.append('portaMalas', form.portaMalas)
       fd.append('precoDiaria', form.precoDiaria)
       fd.append('foto', fotoFile)
       options.body = fd
     } else {
       options.headers['Content-Type'] = 'application/json'
-      options.body = JSON.stringify({ nome: form.nome, cadeiras: Number(form.cadeiras), acessorios: form.acessorios, precoDiaria: Number(form.precoDiaria) })
+      options.body = JSON.stringify({ nome: form.nome, cadeiras: Number(form.cadeiras), vidroEletrico: Boolean(form.vidroEletrico), arCondicionado: Boolean(form.arCondicionado), cambio: form.cambio, travaEletrica: Boolean(form.travaEletrica), direcaoHidraulica: Boolean(form.direcaoHidraulica), portaMalas: form.portaMalas, precoDiaria: Number(form.precoDiaria) })
     }
 
     fetch(`${backendUrl}/admin/veiculos`, options)
@@ -188,7 +223,7 @@ export default function Admin() {
       .then(data => {
         if (data.veiculo) {
           modal.success('Veículo cadastrado com sucesso', 'Sucesso!')
-          setForm({ nome: '', cadeiras: 0, acessorios: '', precoDiaria: '' })
+          setForm({ nome: '', cadeiras: 0, vidroEletrico: false, arCondicionado: false, cambio: 'MANUAL', travaEletrica: false, direcaoHidraulica: false, portaMalas: 'MEDIO', precoDiaria: '' })
           setFotoFile(null)
           setFotoPreview(null)
           loadVeiculos()
@@ -319,7 +354,27 @@ export default function Admin() {
                 </div>
               </div>
 
-              <input className="input" name="acessorios" placeholder="Acessórios (vírgula separados)" value={form.acessorios} onChange={handleChange} />
+              <div style={{ display: 'grid', gap: 8 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" name="vidroEletrico" checked={Boolean(form.vidroEletrico)} onChange={handleChange} /> Vidro elétrico</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" name="arCondicionado" checked={Boolean(form.arCondicionado)} onChange={handleChange} /> Ar-condicionado</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" name="travaEletrica" checked={Boolean(form.travaEletrica)} onChange={handleChange} /> Trava elétrica</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" name="direcaoHidraulica" checked={Boolean(form.direcaoHidraulica)} onChange={handleChange} /> Direção hidráulica</label>
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <label style={{ fontWeight: 700 }}>Câmbio</label>
+                  <select className="input" name="cambio" value={form.cambio} onChange={handleChange}>
+                    <option value="MANUAL">Manual</option>
+                    <option value="AUTOMATICO">Automático</option>
+                  </select>
+                </div>
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <label style={{ fontWeight: 700 }}>Porta-malas</label>
+                  <select className="input" name="portaMalas" value={form.portaMalas} onChange={handleChange}>
+                    <option value="PEQUENO">Pequeno</option>
+                    <option value="MEDIO">Médio</option>
+                    <option value="GRANDE">Grande</option>
+                  </select>
+                </div>
+              </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <label style={{ fontWeight: 700 }}>Preço da diária (R$)</label>
@@ -388,7 +443,27 @@ export default function Admin() {
                     </div>
                   </div>
 
-                  <input className="input" name="acessorios" placeholder="Acessórios (vírgula separados)" value={editForm.acessorios} onChange={handleEditChange} />
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" name="vidroEletrico" checked={Boolean(editForm.vidroEletrico)} onChange={handleEditChange} /> Vidro elétrico</label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" name="arCondicionado" checked={Boolean(editForm.arCondicionado)} onChange={handleEditChange} /> Ar-condicionado</label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" name="travaEletrica" checked={Boolean(editForm.travaEletrica)} onChange={handleEditChange} /> Trava elétrica</label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" name="direcaoHidraulica" checked={Boolean(editForm.direcaoHidraulica)} onChange={handleEditChange} /> Direção hidráulica</label>
+                    <div style={{ display: 'grid', gap: 6 }}>
+                      <label style={{ fontWeight: 700 }}>Câmbio</label>
+                      <select className="input" name="cambio" value={editForm.cambio} onChange={handleEditChange}>
+                        <option value="MANUAL">Manual</option>
+                        <option value="AUTOMATICO">Automático</option>
+                      </select>
+                    </div>
+                    <div style={{ display: 'grid', gap: 6 }}>
+                      <label style={{ fontWeight: 700 }}>Porta-malas</label>
+                      <select className="input" name="portaMalas" value={editForm.portaMalas} onChange={handleEditChange}>
+                        <option value="PEQUENO">Pequeno</option>
+                        <option value="MEDIO">Médio</option>
+                        <option value="GRANDE">Grande</option>
+                      </select>
+                    </div>
+                  </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <label style={{ fontWeight: 700 }}>Preço da diária (R$)</label>
@@ -431,7 +506,7 @@ export default function Admin() {
                     )}
                     <div>
                       <div style={{ fontWeight: 700 }}>{v.nome}</div>
-                      <div style={{ fontSize: 13 }}>{v.cadeiras} cadeiras • {v.acessorios}</div>
+                      <div style={{ fontSize: 13 }}>{v.cadeiras} assentos • {formatCategorias(v)}</div>
                       <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, marginTop: 4 }}>R$ {Number(v.precoDiaria).toFixed(2)}/dia</div>
                     </div>
                   </div>

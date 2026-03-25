@@ -3,6 +3,20 @@ import Header from '../../components/header/Header'
 import Footer from '../../components/footer/Footer'
 import { useModalContext } from '../../context/ModalContext'
 
+function formatCategorias(veiculo) {
+  const categorias = []
+  categorias.push(veiculo?.cambio === 'AUTOMATICO' ? 'Automático' : 'Manual')
+  categorias.push(veiculo?.vidroEletrico ? 'Vidro elétrico' : 'Sem vidro elétrico')
+  categorias.push(veiculo?.arCondicionado ? 'Ar-condicionado' : 'Sem ar-condicionado')
+  categorias.push(veiculo?.travaEletrica ? 'Trava elétrica' : 'Sem trava elétrica')
+  categorias.push(veiculo?.direcaoHidraulica ? 'Dir. hidráulica' : 'Sem dir. hidráulica')
+  if (veiculo?.portaMalas) {
+    const mapaPortaMalas = { PEQUENO: 'Porta-malas pequeno', MEDIO: 'Porta-malas médio', GRANDE: 'Porta-malas grande' }
+    categorias.push(mapaPortaMalas[veiculo.portaMalas] || `Porta-malas ${String(veiculo.portaMalas).toLowerCase()}`)
+  }
+  return categorias.join(' • ')
+}
+
 export default function MinhasReservas() {
   const modal = useModalContext()
   const [reservas, setReservas] = useState(null)
@@ -78,7 +92,7 @@ export default function MinhasReservas() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 700 }}>{r.veiculo?.nome || 'Veículo'}</div>
-                  <div style={{ fontSize: 13, color: '#666' }}>{r.veiculo?.cadeiras} cadeiras • {r.veiculo?.acessorios}</div>
+                  <div style={{ fontSize: 13, color: '#666' }}>{r.veiculo?.cadeiras} assentos • {formatCategorias(r.veiculo)}</div>
                   <div style={{ fontSize: 13, marginTop: 6 }}>
                     <strong>Data de retirada:</strong> {new Date(r.dataRetirada).toLocaleDateString('pt-BR')} às {r.horaRetirada}
                   </div>

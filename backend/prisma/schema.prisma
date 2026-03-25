@@ -7,6 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum CambioTipo {
+  MANUAL
+  AUTOMATICO
+}
+
+enum PortaMalasTamanho {
+  PEQUENO
+  MEDIO
+  GRANDE
+}
+
 model Usuario {
   id        Int       @id @default(autoincrement())
   nome      String
@@ -21,7 +32,12 @@ model Veiculo {
   id           Int       @id @default(autoincrement())
   nome         String
   cadeiras     Int
-  acessorios   String?
+  vidroEletrico    Boolean            @default(false)
+  arCondicionado   Boolean            @default(false)
+  cambio           CambioTipo         @default(MANUAL)
+  travaEletrica    Boolean            @default(false)
+  direcaoHidraulica Boolean           @default(false)
+  portaMalas       PortaMalasTamanho  @default(MEDIO)
   foto         String?
   precoDiaria  Float
   reservado    Boolean   @default(false)
